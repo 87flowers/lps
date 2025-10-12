@@ -4,7 +4,9 @@
 
 namespace lps::generic {
 
-template <class T, usize N> struct vector;
-template <class T, usize N> struct vector_mask;
+  template<class T, usize N>
+  struct vector;
+  template<class T, usize N>
+  struct vector_mask;
 
-} // namespace lps::generic
+}  // namespace lps::generic
