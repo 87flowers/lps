@@ -26,7 +26,8 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  template<class U, class>
+  template<class U>
+    requires std::is_same_v<T, detail::mask_element_t<U>>
   constexpr vector<U, N> basic_vector_mask<T, N>::select(const vector<U, N>& v0, const vector<U, N>& v1) {
     vector<U, N> result;
     for (usize i = 0; i < N; i++) {

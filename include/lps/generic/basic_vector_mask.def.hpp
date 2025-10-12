@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lps/detail/mask_element.hpp"
 #include "lps/generic/generic.fwd.hpp"
 #include "lps/stdint.hpp"
 
@@ -19,7 +20,8 @@ namespace lps::generic {
 
     constexpr void set(usize index, bool value);
 
-    template<class U, class = std::enable_if_t<std::is_same_v<T, detail::mask_element_t<U>>>>
+    template<class U>
+      requires std::is_same_v<T, detail::mask_element_t<U>>
     constexpr vector<U, N> select(const vector<U, N>& v0, const vector<U, N>& v1);
 
     [[nodiscard]] std::array<T, N> to_array() const;
