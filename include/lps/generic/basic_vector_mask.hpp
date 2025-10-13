@@ -37,6 +37,19 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
+  template<class U>
+    requires std::is_same_v<T, detail::mask_element_t<U>>
+  constexpr vector<U, N> basic_vector_mask<T, N>::compress(const vector<U, N>& v) {
+    vector<U, N> result = vector<U, N>::zero();
+    for (usize i = 0, j = 0; i < N; i++) {
+      if (raw.raw[i] != false_value) {
+        result[j++] = v.raw[i];
+      }
+    }
+    return result;
+  }
+
+  template<class T, usize N>
   [[nodiscard]] std::array<T, N> basic_vector_mask<T, N>::to_array() const {
     return raw;
   }

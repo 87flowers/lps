@@ -24,6 +24,10 @@ namespace lps::generic {
       requires std::is_same_v<T, detail::mask_element_t<U>>
     constexpr vector<U, N> select(const vector<U, N>& v0, const vector<U, N>& v1);
 
+    template<class U>
+      requires std::is_same_v<T, detail::mask_element_t<U>>
+    constexpr vector<U, N> compress(const vector<U, N>& v);
+
     [[nodiscard]] std::array<T, N> to_array() const;
   private:
     static constexpr T false_value = T { 0 };
