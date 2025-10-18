@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lps/detail/bit_mask_base.hpp"
 #include "lps/detail/mask_element.hpp"
 #include "lps/generic/generic.fwd.hpp"
 #include "lps/stdint.hpp"
@@ -12,6 +13,7 @@ namespace lps::generic {
   template<class T, usize N>
   struct basic_vector_mask {
     static constexpr usize size = N;
+    using inner_type = vector<T, N>;
 
     explicit constexpr basic_vector_mask() = default;
 
@@ -29,11 +31,12 @@ namespace lps::generic {
     constexpr vector<U, N> compress(const vector<U, N>& v);
 
     [[nodiscard]] std::array<T, N> to_array() const;
+    [[nodiscard]] detail::bit_mask_base_t<N> to_bits() const;
+    [[nodiscard]] inner_type to_vector() const;
   private:
     static constexpr T false_value = T { 0 };
-    static constexpr T true_value = ~T { 0 };
+    static constexpr T true_value = static_cast<T>(~T { 0 });
 
-    using inner_type = vector<T, N>;
     inner_type raw;
   };
 

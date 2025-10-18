@@ -49,9 +49,13 @@ namespace lps::generic {
     constexpr vector_mask<T, N> gt_vm(const vector& second) const;
     constexpr vector_mask<T, N> gt(const vector& second) const;
 
-    constexpr vector_mask<T, N> nonzero_vm() const;
-    constexpr vector_mask<T, N> nonzero() const;
-    constexpr usize nonzero_count() const;
+    constexpr vector_mask<T, N> nonzeros_vm() const;
+    constexpr vector_mask<T, N> nonzeros() const;
+    constexpr usize nonzeros_count() const;
+
+    constexpr vector_mask<T, N> zeros_vm() const;
+    constexpr vector_mask<T, N> zeros() const;
+    constexpr usize zeros_count() const;
 
     constexpr vector_mask<T, N> msb_vm() const;
     constexpr vector_mask<T, N> msb() const;

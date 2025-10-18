@@ -10,7 +10,9 @@ namespace lps::generic {
 
   template<class T, usize N>
   constexpr basic_vector_mask<T, N> basic_vector_mask<T, N>::zero() {
-    return vector { std::array<T, N> {} };
+    basic_vector_mask result;
+    result.raw = vector<T, N>::zero();
+    return result;
   }
 
   template<class T, usize N>
@@ -51,6 +53,21 @@ namespace lps::generic {
 
   template<class T, usize N>
   [[nodiscard]] std::array<T, N> basic_vector_mask<T, N>::to_array() const {
+    return raw;
+  }
+
+  template<class T, usize N>
+  [[nodiscard]] detail::bit_mask_base_t<N> basic_vector_mask<T, N>::to_bits() const {
+    detail::bit_mask_base_t<N> result = 0;
+    for (usize i = 0; i < N; i++) {
+      detail::bit_mask_base_t<N> bit = raw.raw[i] == false_value;
+      result |= bit << i;
+    }
+    return result;
+  }
+
+  template<class T, usize N>
+  [[nodiscard]] basic_vector_mask<T, N>::inner_type basic_vector_mask<T, N>::to_vector() const {
     return raw;
   }
 
