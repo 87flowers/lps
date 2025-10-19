@@ -59,6 +59,17 @@ namespace lps::generic {
   }
 
   template<typename T, usize N>
+  template<usize M>
+    requires(M != N)
+  constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, M>& src) {
+    vector<T, N> result;
+    for (usize i = 0; i < N; i++) {
+      result.raw[i] = raw[i] < M ? src.raw[raw[i]] : 0;
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
   template<usize shift_amount>
   constexpr vector<T, N> vector<T, N>::shl() {
     vector<T, N> result;

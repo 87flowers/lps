@@ -16,6 +16,11 @@ namespace lps {
 
 namespace lps::prelude {
 
+  using u8x16 = vector<u8, 16>;
+  using i8x16 = vector<i8, 16>;
+  using vm8x16 = vector_mask<u8, 16>;
+  using m8x16 = vm8x16;
+
   using u8x64 = vector<u8, 64>;
   using i8x64 = vector<i8, 64>;
   using vm8x64 = vector_mask<u8, 64>;
@@ -30,5 +35,10 @@ namespace lps::prelude {
   using i32x4 = vector<i32, 4>;
   using vm32x4 = vector_mask<u32, 4>;
   using m32x4 = vm32x4;
+
+  using u16x64 = vector<u16, 64>;
+  using i16x64 = vector<i16, 64>;
+  using vm16x64 = vector_mask<u16, 64>;
+  using m16x64 = vm16x64;
 
 }  // namespace lps::prelude

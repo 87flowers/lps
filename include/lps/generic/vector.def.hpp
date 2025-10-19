@@ -11,7 +11,7 @@ namespace lps::generic {
   struct vector {
     static constexpr usize size = N;
 
-    explicit constexpr vector() = default;
+    constexpr vector() = default;
 
     explicit constexpr vector(const std::array<T, N>& src) :
         raw(src) {
@@ -28,6 +28,10 @@ namespace lps::generic {
     constexpr vector swizzle(const vector& src);
     // forall i: result[i] = concat[this[i]] where contact is concatenation of src0 and src1
     constexpr vector swizzle(const vector& src0, const vector& src1);
+
+    template<usize M>
+      requires(M != N)
+    constexpr vector swizzle(const vector<T, M>& src);
 
     template<usize shift_amount>
     constexpr vector shl();
