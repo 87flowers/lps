@@ -11,6 +11,24 @@
 namespace lps::generic {
 
   template<class T, usize N>
+  constexpr bool operator==(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+  template<class T, usize N>
+  constexpr basic_vector_mask<T, N> operator~(const basic_vector_mask<T, N>& first);
+
+  template<class T, usize N>
+  constexpr basic_vector_mask<T, N> operator&(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+  template<class T, usize N>
+  constexpr basic_vector_mask<T, N>& operator&=(basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+  template<class T, usize N>
+  constexpr basic_vector_mask<T, N> operator|(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+  template<class T, usize N>
+  constexpr basic_vector_mask<T, N>& operator|=(basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+  template<class T, usize N>
   struct basic_vector_mask {
     static constexpr usize size = N;
     using inner_type = vector<T, N>;
