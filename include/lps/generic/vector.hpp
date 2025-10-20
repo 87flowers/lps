@@ -11,32 +11,32 @@
 
 namespace lps::generic {
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::zero() {
     return vector { std::array<T, N> {} };
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::splat(T value) {
     vector v;
     std::fill(v.raw.begin(), v.raw.end(), value);
     return v;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   vector<T, N> vector<T, N>::load(const void* src) {
     vector v;
     std::memcpy(v.raw.data(), src, sizeof(v.raw));
     return v;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr T vector<T, N>::read(usize i) const {
     return raw[i];
   }
 
-  template<typename T, usize N>
-  template<typename U>
+  template<class T, usize N>
+  template<class U>
   constexpr vector<U, std::max(N, 16 / sizeof(U))> vector<T, N>::convert() {
     vector<U, std::max(N, 16 / sizeof(U))> result;
     for (usize i = 0; i < N; i++) {
@@ -45,7 +45,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   template<class V, usize extract_index>
   constexpr V vector<T, N>::extract_aligned() {
     V result;
@@ -55,7 +55,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -64,7 +64,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src0, const vector<T, N>& src1) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -73,14 +73,14 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::swizzle(const vector_mask<T, N>& src) {
-    vector_mask<T, N> result;
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::swizzle(const vector<T, N>::mask_type& src) {
+    vector<T, N>::mask_type result;
     result.raw = swizzle(src.raw);
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   template<usize M>
     requires(M != N)
   constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, M>& src) {
@@ -91,7 +91,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   template<usize shift_amount>
   constexpr vector<T, N> vector<T, N>::shl() {
     vector<T, N> result;
@@ -101,7 +101,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   template<usize shift_amount>
   constexpr vector<T, N> vector<T, N>::shr() {
     vector<T, N> result;
@@ -111,7 +111,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::andnot(const vector<T, N>& second) const {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -120,7 +120,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr T vector<T, N>::reduce_add() const {
     T result = 0;
     for (usize i = 0; i < N; i++) {
@@ -129,7 +129,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr T vector<T, N>::reduce_or() const {
     T result = 0;
     for (usize i = 0; i < N; i++) {
@@ -138,7 +138,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr T vector<T, N>::reduce_xor() const {
     T result = 0;
     for (usize i = 0; i < N; i++) {
@@ -147,7 +147,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::zip_low(const vector<T, N>& second) const {
     static_assert(N % 2 == 0);
     vector<T, N> result;
@@ -158,7 +158,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::zip_high(const vector<T, N>& second) const {
     static_assert(N % 2 == 0);
     vector<T, N> result;
@@ -169,7 +169,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::zip_low_128lanes(const vector<T, N>& second) const {
     static_assert(N % 2 == 0);
     vector<T, N> result;
@@ -186,7 +186,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::zip_high_128lanes(const vector<T, N>& second) const {
     static_assert(N % 2 == 0);
     vector<T, N> result;
@@ -203,77 +203,77 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::test_vm(const vector& second) const {
-    vector_mask<T, N> m = vector_mask<T, N>::zero();
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::test_vm(const vector& second) const {
+    vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] & second.raw[i]);
     }
     return m;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::test(const vector& second) const {
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::test(const vector& second) const {
     return test_vm(second);
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::eq_vm(const vector& second) const {
-    vector_mask<T, N> m = vector_mask<T, N>::zero();
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::eq_vm(const vector& second) const {
+    vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] == second.raw[i]);
     }
     return m;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::eq(const vector& second) const {
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::eq(const vector& second) const {
     return eq_vm(second);
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::neq_vm(const vector& second) const {
-    vector_mask<T, N> m = vector_mask<T, N>::zero();
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::neq_vm(const vector& second) const {
+    vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] != second.raw[i]);
     }
     return m;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::neq(const vector& second) const {
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::neq(const vector& second) const {
     return neq_vm(second);
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::gt_vm(const vector<T, N>& second) const {
-    vector_mask<T, N> m = vector_mask<T, N>::zero();
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::gt_vm(const vector<T, N>& second) const {
+    vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] > second.raw[i]);
     }
     return m;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::gt(const vector<T, N>& other) const {
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::gt(const vector<T, N>& other) const {
     return gt_vm(other);
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::nonzeros_vm() const {
-    vector_mask<T, N> m = vector_mask<T, N>::zero();
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::nonzeros_vm() const {
+    vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] != 0);
     }
     return m;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::nonzeros() const {
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::nonzeros() const {
     return nonzeros_vm();
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr usize vector<T, N>::nonzeros_count() const {
     usize result = 0;
     for (usize i = 0; i < N; i++) {
@@ -282,21 +282,21 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::zeros_vm() const {
-    vector_mask<T, N> m = vector_mask<T, N>::zero();
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::zeros_vm() const {
+    vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] == 0);
     }
     return m;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::zeros() const {
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::zeros() const {
     return zeros_vm();
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr usize vector<T, N>::zeros_count() const {
     usize result = 0;
     for (usize i = 0; i < N; i++) {
@@ -305,31 +305,31 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::msb_vm() const {
-    vector_mask<T, N> m = vector_mask<T, N>::zero();
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::msb_vm() const {
+    vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, detail::msb(raw[i]));
     }
     return m;
   }
 
-  template<typename T, usize N>
-  constexpr vector_mask<T, N> vector<T, N>::msb() const {
+  template<class T, usize N>
+  constexpr vector<T, N>::mask_type vector<T, N>::msb() const {
     return msb_vm();
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   std::array<T, N> vector<T, N>::to_array() const {
     return raw;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr bool operator==(const vector<T, N>& first, const vector<T, N>& second) {
     return first.raw == second.raw;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator~(const vector<T, N>& first) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -338,7 +338,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator&(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -347,7 +347,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator&=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] &= second.raw[i];
@@ -355,7 +355,7 @@ namespace lps::generic {
     return first;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator|(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -364,7 +364,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator|=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] |= second.raw[i];
@@ -372,7 +372,7 @@ namespace lps::generic {
     return first;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator^(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -381,7 +381,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator^=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] ^= second.raw[i];
@@ -389,7 +389,7 @@ namespace lps::generic {
     return first;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator+(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -398,7 +398,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator+=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] += second.raw[i];
@@ -406,7 +406,7 @@ namespace lps::generic {
     return first;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator-(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -415,7 +415,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator-=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] -= second.raw[i];
@@ -423,7 +423,7 @@ namespace lps::generic {
     return first;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator*(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -432,7 +432,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator*=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] *= second.raw[i];
@@ -440,7 +440,7 @@ namespace lps::generic {
     return first;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator<<(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -449,7 +449,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator<<=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] <<= second.raw[i];
@@ -457,7 +457,7 @@ namespace lps::generic {
     return first;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N> operator>>(const vector<T, N>& first, const vector<T, N>& second) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -466,7 +466,7 @@ namespace lps::generic {
     return result;
   }
 
-  template<typename T, usize N>
+  template<class T, usize N>
   constexpr vector<T, N>& operator>>=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] >>= second.raw[i];

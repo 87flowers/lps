@@ -1,5 +1,7 @@
 #pragma once
 
+#include "lps/doubling/basic_vector_mask.hpp"
+#include "lps/doubling/vector.hpp"
 #include "lps/generic/basic_vector_mask.hpp"
 #include "lps/generic/vector.hpp"
 #include "lps/stdint.hpp"
@@ -16,6 +18,16 @@ namespace lps {
 
 namespace lps::prelude {
 
+  struct env {
+    template<class T, usize N>
+    using vector =
+      std::conditional_t<sizeof(T) == sizeof(u8) && N == 64, doubling::vector<T, N, generic::vector<u8, 32>, env>, generic::vector<T, N>>;
+
+    template<class T, usize N>
+    using vector_mask = std::conditional_t<sizeof(T) == sizeof(u8) && N == 64, doubling::basic_vector_mask<T, N, generic::vector_mask<u8, 32>, env>,
+                                           generic::vector_mask<T, N>>;
+  };
+
   using u8x16 = vector<u8, 16>;
   using i8x16 = vector<i8, 16>;
   using vm8x16 = vector_mask<u8, 16>;
@@ -26,9 +38,9 @@ namespace lps::prelude {
   using vm8x32 = vector_mask<u8, 32>;
   using m8x32 = vm8x32;
 
-  using u8x64 = vector<u8, 64>;
-  using i8x64 = vector<i8, 64>;
-  using vm8x64 = vector_mask<u8, 64>;
+  using u8x64 = doubling::vector<u8, 64, u8x32, env>;
+  using i8x64 = doubling::vector<i8, 64, u8x32, env>;
+  using vm8x64 = doubling::basic_vector_mask<u8, 64, m8x32, env>;
   using m8x64 = vm8x64;
 
   using u8x128 = vector<u8, 128>;
