@@ -21,6 +21,11 @@ namespace lps::generic {
     static constexpr vector splat(T value);
     static vector load(const void* src);
 
+    constexpr T read(usize i) const;
+
+    template<typename U>
+    constexpr vector<U, std::max(N, 16 / sizeof(U))> convert();
+
     template<class V, usize extract_index>
     constexpr V extract_aligned();
 
@@ -28,6 +33,8 @@ namespace lps::generic {
     constexpr vector swizzle(const vector& src);
     // forall i: result[i] = concat[this[i]] where contact is concatenation of src0 and src1
     constexpr vector swizzle(const vector& src0, const vector& src1);
+
+    constexpr vector_mask<T, N> swizzle(const vector_mask<T, N>& src);
 
     template<usize M>
       requires(M != N)
@@ -38,8 +45,15 @@ namespace lps::generic {
     template<usize shift_amount>
     constexpr vector shr();
 
+    constexpr T reduce_add() const;
+    constexpr T reduce_or() const;
+    constexpr T reduce_xor() const;
+
     constexpr vector zip_low(const vector& second) const;
     constexpr vector zip_high(const vector& second) const;
+
+    constexpr vector zip_low_128lanes(const vector& second) const;
+    constexpr vector zip_high_128lanes(const vector& second) const;
 
     constexpr vector_mask<T, N> test_vm(const vector& second) const;
     constexpr vector_mask<T, N> test(const vector& second) const;
@@ -109,9 +123,21 @@ namespace lps::generic {
   constexpr vector<T, N>& operator-=(vector<T, N>& first, const vector<T, N>& second);
 
   template<typename T, usize N>
-  constexpr vector<T, N> operator-(const vector<T, N>& first, const vector<T, N>& second);
+  constexpr vector<T, N> operator*(const vector<T, N>& first, const vector<T, N>& second);
 
   template<typename T, usize N>
-  constexpr vector<T, N>& operator-=(vector<T, N>& first, const vector<T, N>& second);
+  constexpr vector<T, N>& operator*=(vector<T, N>& first, const vector<T, N>& second);
+
+  template<typename T, usize N>
+  constexpr vector<T, N> operator<<(const vector<T, N>& first, const vector<T, N>& second);
+
+  template<typename T, usize N>
+  constexpr vector<T, N>& operator<<=(vector<T, N>& first, const vector<T, N>& second);
+
+  template<typename T, usize N>
+  constexpr vector<T, N> operator>>(const vector<T, N>& first, const vector<T, N>& second);
+
+  template<typename T, usize N>
+  constexpr vector<T, N>& operator>>=(vector<T, N>& first, const vector<T, N>& second);
 
 }  // namespace lps::generic

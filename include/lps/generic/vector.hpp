@@ -31,6 +31,21 @@ namespace lps::generic {
   }
 
   template<typename T, usize N>
+  constexpr T vector<T, N>::read(usize i) const {
+    return raw[i];
+  }
+
+  template<typename T, usize N>
+  template<typename U>
+  constexpr vector<U, std::max(N, 16 / sizeof(U))> vector<T, N>::convert() {
+    vector<U, std::max(N, 16 / sizeof(U))> result;
+    for (usize i = 0; i < N; i++) {
+      result.raw[i] = static_cast<U>(raw[i]);
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
   template<class V, usize extract_index>
   constexpr V vector<T, N>::extract_aligned() {
     V result;
@@ -55,6 +70,13 @@ namespace lps::generic {
     for (usize i = 0; i < N; i++) {
       result.raw[i] = raw[i] < 2 * N ? (raw[i] < N ? src0 : src1).raw[raw[i]] : 0;
     }
+    return result;
+  }
+
+  template<typename T, usize N>
+  constexpr vector_mask<T, N> vector<T, N>::swizzle(const vector_mask<T, N>& src) {
+    vector_mask<T, N> result;
+    result.raw = swizzle(src.raw);
     return result;
   }
 
@@ -90,6 +112,33 @@ namespace lps::generic {
   }
 
   template<typename T, usize N>
+  constexpr T vector<T, N>::reduce_add() const {
+    T result = 0;
+    for (usize i = 0; i < N; i++) {
+      result += raw[i];
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
+  constexpr T vector<T, N>::reduce_or() const {
+    T result = 0;
+    for (usize i = 0; i < N; i++) {
+      result |= raw[i];
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
+  constexpr T vector<T, N>::reduce_xor() const {
+    T result = 0;
+    for (usize i = 0; i < N; i++) {
+      result ^= raw[i];
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
   constexpr vector<T, N> vector<T, N>::zip_low(const vector<T, N>& second) const {
     static_assert(N % 2 == 0);
     vector<T, N> result;
@@ -107,6 +156,40 @@ namespace lps::generic {
     for (usize i = 0; i < N; i += 2) {
       result.raw[i + 0] = raw[(N + i) / 2];
       result.raw[i + 1] = second.raw[(N + i) / 2];
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
+  constexpr vector<T, N> vector<T, N>::zip_low_128lanes(const vector<T, N>& second) const {
+    static_assert(N % 2 == 0);
+    vector<T, N> result;
+    constexpr usize lane_width = 16 / sizeof(T);
+    constexpr usize lane_count = N / lane_width;
+    static_assert(lane_count * lane_width == N);
+    for (usize lane = 0; lane < lane_count; lane++) {
+      usize lane_start = lane * lane_width;
+      for (usize i = 0; i < lane_width; i += 2) {
+        result.raw[lane_start + i + 0] = raw[lane_start + i / 2];
+        result.raw[lane_start + i + 1] = second.raw[lane_start + i / 2];
+      }
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
+  constexpr vector<T, N> vector<T, N>::zip_high_128lanes(const vector<T, N>& second) const {
+    static_assert(N % 2 == 0);
+    vector<T, N> result;
+    constexpr usize lane_width = 16 / sizeof(T);
+    constexpr usize lane_count = N / lane_width;
+    static_assert(lane_count * lane_width == N);
+    for (usize lane = 0; lane < lane_count; lane++) {
+      usize lane_start = lane * lane_width;
+      for (usize i = 0; i < lane_width; i += 2) {
+        result.raw[lane_start + i + 0] = raw[lane_start + (lane_width + i) / 2];
+        result.raw[lane_start + i + 1] = second.raw[lane_start + (lane_width + i) / 2];
+      }
     }
     return result;
   }
@@ -353,6 +436,40 @@ namespace lps::generic {
   constexpr vector<T, N>& operator*=(vector<T, N>& first, const vector<T, N>& second) {
     for (usize i = 0; i < N; i++) {
       first.raw[i] *= second.raw[i];
+    }
+    return first;
+  }
+
+  template<typename T, usize N>
+  constexpr vector<T, N> operator<<(const vector<T, N>& first, const vector<T, N>& second) {
+    vector<T, N> result;
+    for (usize i = 0; i < N; i++) {
+      result.raw[i] = first.raw[i] << second.raw[i];
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
+  constexpr vector<T, N>& operator<<=(vector<T, N>& first, const vector<T, N>& second) {
+    for (usize i = 0; i < N; i++) {
+      first.raw[i] <<= second.raw[i];
+    }
+    return first;
+  }
+
+  template<typename T, usize N>
+  constexpr vector<T, N> operator>>(const vector<T, N>& first, const vector<T, N>& second) {
+    vector<T, N> result;
+    for (usize i = 0; i < N; i++) {
+      result.raw[i] = first.raw[i] >> second.raw[i];
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
+  constexpr vector<T, N>& operator>>=(vector<T, N>& first, const vector<T, N>& second) {
+    for (usize i = 0; i < N; i++) {
+      first.raw[i] >>= second.raw[i];
     }
     return first;
   }

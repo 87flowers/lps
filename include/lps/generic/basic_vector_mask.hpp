@@ -7,6 +7,12 @@
 #include <array>
 
 namespace lps::generic {
+  template<class T, usize N>
+  constexpr basic_vector_mask<T, N>::basic_vector_mask(detail::bit_mask_base_t<N> value) {
+    for (usize i = 0; i < N; i++) {
+      raw.raw[i] = ((value >> i) & 1) ? true_value : false_value;
+    }
+  }
 
   template<class T, usize N>
   constexpr basic_vector_mask<T, N> basic_vector_mask<T, N>::zero() {
@@ -52,8 +58,17 @@ namespace lps::generic {
     vector<U, N> result = vector<U, N>::zero();
     for (usize i = 0, j = 0; i < N; i++) {
       if (raw.raw[i] != false_value) {
-        result[j++] = v.raw[i];
+        result.raw[j++] = v.raw[i];
       }
+    }
+    return result;
+  }
+
+  template<class T, usize N>
+  [[nodiscard]] usize basic_vector_mask<T, N>::popcount() const {
+    usize result = 0;
+    for (usize i = 0; i < N; i++) {
+      result += raw.raw[i] != false_value;
     }
     return result;
   }
