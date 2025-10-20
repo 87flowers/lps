@@ -18,9 +18,6 @@ namespace lps::generic {
   constexpr bool operator==(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
 
   template<class T, usize N>
-  constexpr basic_vector_mask<T, N> andnot(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
-
-  template<class T, usize N>
   constexpr basic_vector_mask<T, N> operator~(const basic_vector_mask<T, N>& first);
 
   template<class T, usize N>

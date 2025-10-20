@@ -35,6 +35,8 @@ namespace lps::generic {
       requires std::is_same_v<T, detail::mask_element_t<U>>
     constexpr vector<U, N> compress(const vector<U, N>& v);
 
+    constexpr basic_vector_mask andnot(const basic_vector_mask& second) const;
+
     [[nodiscard]] usize popcount() const;
 
     [[nodiscard]] std::array<T, N> to_array() const;
@@ -42,8 +44,6 @@ namespace lps::generic {
     [[nodiscard]] inner_type to_vector() const;
 
     friend constexpr bool operator== <T, N>(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
-
-    friend constexpr basic_vector_mask<T, N> andnot<T, N>(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
 
     friend constexpr basic_vector_mask<T, N> operator~ <T, N>(const basic_vector_mask<T, N>& first);
 

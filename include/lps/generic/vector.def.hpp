@@ -45,6 +45,8 @@ namespace lps::generic {
     template<usize shift_amount>
     constexpr vector shr();
 
+    constexpr vector andnot(const vector& second) const;
+
     constexpr T reduce_add() const;
     constexpr T reduce_or() const;
     constexpr T reduce_xor() const;
@@ -85,9 +87,6 @@ namespace lps::generic {
 
   template<typename T, usize N>
   constexpr bool operator==(const vector<T, N>& first, const vector<T, N>& second);
-
-  template<typename T, usize N>
-  constexpr vector<T, N> andnot(const vector<T, N>& first, const vector<T, N>& second);
 
   template<typename T, usize N>
   constexpr vector<T, N> operator~(const vector<T, N>& first);

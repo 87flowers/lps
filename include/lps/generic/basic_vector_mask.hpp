@@ -64,6 +64,13 @@ namespace lps::generic {
     return result;
   }
 
+  template<typename T, usize N>
+  constexpr basic_vector_mask<T, N> basic_vector_mask<T, N>::andnot(const basic_vector_mask<T, N>& second) const {
+    basic_vector_mask<T, N> result;
+    result.raw = raw.andnot(second.raw);
+    return result;
+  }
+
   template<class T, usize N>
   [[nodiscard]] usize basic_vector_mask<T, N>::popcount() const {
     usize result = 0;
@@ -96,13 +103,6 @@ namespace lps::generic {
   template<typename T, usize N>
   constexpr bool operator==(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second) {
     return first.raw == second.raw;
-  }
-
-  template<typename T, usize N>
-  constexpr basic_vector_mask<T, N> andnot(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second) {
-    basic_vector_mask<T, N> result;
-    result.raw = andnot(first.raw, second.raw);
-    return result;
   }
 
   template<typename T, usize N>

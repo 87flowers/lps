@@ -112,6 +112,15 @@ namespace lps::generic {
   }
 
   template<typename T, usize N>
+  constexpr vector<T, N> vector<T, N>::andnot(const vector<T, N>& second) const {
+    vector<T, N> result;
+    for (usize i = 0; i < N; i++) {
+      result.raw[i] = raw[i] & ~second.raw[i];
+    }
+    return result;
+  }
+
+  template<typename T, usize N>
   constexpr T vector<T, N>::reduce_add() const {
     T result = 0;
     for (usize i = 0; i < N; i++) {
@@ -318,15 +327,6 @@ namespace lps::generic {
   template<typename T, usize N>
   constexpr bool operator==(const vector<T, N>& first, const vector<T, N>& second) {
     return first.raw == second.raw;
-  }
-
-  template<typename T, usize N>
-  constexpr vector<T, N> andnot(const vector<T, N>& first, const vector<T, N>& second) {
-    vector<T, N> result;
-    for (usize i = 0; i < N; i++) {
-      result.raw[i] = ~first.raw[i] & second.raw[i];
-    }
-    return result;
   }
 
   template<typename T, usize N>
