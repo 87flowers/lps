@@ -1,13 +1,24 @@
 #pragma once
 
-#include "lps/generic/generic.hpp"
 #include "lps/stdint.hpp"
 
+#if defined(__SSE4_2__) && __SSE4_2__
+
+#include "lps/sse4_2/sse4_2.hpp"
+
 namespace lps {
-
-  using environment = generic::environment;
-
+  using environment = sse4_2::environment;
 }  // namespace lps
+
+#else
+
+#include "lps/generic/generic.hpp"
+
+namespace lps {
+  using environment = generic::environment;
+}  // namespace lps
+
+#endif
 
 namespace lps::prelude {
 

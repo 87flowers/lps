@@ -3,8 +3,8 @@
 #include "lps/detail/msb.hpp"
 #include "lps/doubling/basic_vector_mask.def.hpp"
 #include "lps/doubling/vector.def.hpp"
-#include "lps/generic/basic_vector_mask.def.hpp"
-#include "lps/generic/vector.def.hpp"
+#include "lps/generic/basic_vector_mask.hpp"
+#include "lps/generic/vector.hpp"
 #include "lps/stdint.hpp"
 
 #include <algorithm>

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "lps/generic/basic_vector_mask.hpp"
 #include "lps/generic/generic.fwd.hpp"
 #include "lps/generic/vector.hpp"
