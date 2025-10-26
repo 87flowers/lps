@@ -41,9 +41,6 @@ namespace lps::sse4_2 {
 
     constexpr mask_type swizzle(const mask_type& src);
 
-    constexpr vector swizzle(const Env::template vector<T, 16 / sizeof(T)>& src)
-      requires(16 / sizeof(T) != N);
-
     template<usize shift_amount>
     constexpr vector shl();
     template<usize shift_amount>

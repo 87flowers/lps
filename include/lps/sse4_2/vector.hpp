@@ -153,13 +153,22 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src)));
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      return vector { _mm_shuffle_epi8(src.raw, raw) };
+    } else {
+      return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src)));
+    }
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src0, const vector<T, N, Env>& src1) {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src0), std::bit_cast<generic::vector<T, N>>(src1)));
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      __m128i mask = _mm_slli_epi16(raw, 3);
+      return vector { _mm_blendv_epi8(_mm_shuffle_epi8(src0.raw, raw), _mm_shuffle_epi8(src1.raw, raw), mask) };
+    } else {
+      return std::bit_cast<vector<T, N, Env>>(
+        std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src0), std::bit_cast<generic::vector<T, N>>(src1)));
+    }
   }
 
   template<class T, usize N, class Env>
@@ -168,28 +177,30 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const Env::template vector<T, 16 / sizeof(T)>& src)
-    requires(16 / sizeof(T) != N)
-  {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, 16 / sizeof(T)>>(src)));
-  }
-
-  template<class T, usize N, class Env>
   template<usize shift_amount>
   constexpr vector<T, N, Env> vector<T, N, Env>::shl() {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shl<shift_amount>());
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      constexpr u8 mask = static_cast<u8>(0xFF << shift_amount);
+      return vector { _mm_slli_epi16(raw, shift_amount) } & vector::splat(mask);
+    } else {
+      return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shl<shift_amount>());
+    }
   }
 
   template<class T, usize N, class Env>
   template<usize shift_amount>
   constexpr vector<T, N, Env> vector<T, N, Env>::shr() {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shr<shift_amount>());
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      constexpr u8 mask = static_cast<u8>(0xFF >> shift_amount);
+      return vector { _mm_srli_epi16(raw, shift_amount) } & vector::splat(mask);
+    } else {
+      return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shr<shift_amount>());
+    }
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::andnot(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).andnot(std::bit_cast<generic::vector<T, N>>(second)));
+    return vector { _mm_andnot_si128(second.raw, raw) };
   }
 
   template<class T, usize N, class Env>
