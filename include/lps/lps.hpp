@@ -2,7 +2,15 @@
 
 #include "lps/stdint.hpp"
 
-#if defined(__SSE4_2__) && __SSE4_2__
+#if defined(__AVX2__) && __AVX2__
+
+#include "lps/avx2/avx2.hpp"
+
+namespace lps {
+  using environment = avx2::environment;
+}  // namespace lps
+
+#elif defined(__SSE4_2__) && __SSE4_2__
 
 #include "lps/sse4_2/sse4_2.hpp"
 
