@@ -21,14 +21,14 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::zero() {
-    vector result;
+    vector<T, N, Base, Env> result;
     result.raw = { Base::zero(), Base::zero() };
     return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::splat(T value) {
-    vector result;
+    vector<T, N, Base, Env> result;
     result.raw = { Base::splat(value), Base::splat(value) };
     return result;
   }
@@ -236,12 +236,18 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator~(const vector<T, N, Base, Env>& first) {
-    return std::bit_cast<vector<T, N, Base, Env>>(~std::bit_cast<generic::vector<T, N>>(first));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = ~first.raw[0];
+    result.raw[1] = ~first.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator&(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) & std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] & second.raw[0];
+    result.raw[1] = first.raw[1] & second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -251,7 +257,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator|(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) | std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] | second.raw[0];
+    result.raw[1] = first.raw[1] | second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -261,7 +270,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator^(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) ^ std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] ^ second.raw[0];
+    result.raw[1] = first.raw[1] ^ second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -271,7 +283,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator+(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) + std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] + second.raw[0];
+    result.raw[1] = first.raw[1] + second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -281,7 +296,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator-(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) - std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] - second.raw[0];
+    result.raw[1] = first.raw[1] - second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -291,7 +309,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator*(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) * std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] * second.raw[0];
+    result.raw[1] = first.raw[1] * second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -301,7 +322,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator<<(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) << std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] << second.raw[0];
+    result.raw[1] = first.raw[1] << second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -311,7 +335,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> operator>>(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(first) >> std::bit_cast<generic::vector<T, N>>(second));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] >> second.raw[0];
+    result.raw[1] = first.raw[1] >> second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
