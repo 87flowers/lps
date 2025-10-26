@@ -97,15 +97,8 @@ namespace lps::doubling {
     static_assert(std::has_single_bit(N));
 
     auto mask0 = test(vector<T, N, Base, Env>::splat(N));
-    auto mask1 = test(vector<T, N, Base, Env>::splat(N >> 1));
-    auto index = andnot(vector<T, N, Base, Env>::splat(N | (N >> 1)));
-
-    auto [src00, src01] = src0.split();
-    auto [src10, src11] = src1.split();
-
-    auto x = mask1.select(index.swizzle(src00.dup()), index.swizzle(src01.dup()));
-    auto y = mask1.select(index.swizzle(src10.dup()), index.swizzle(src11.dup()));
-    return mask0.select(x, y);
+    auto index = andnot(vector<T, N, Base, Env>::splat(N));
+    return mask0.select(index.swizzle(src0), index.swizzle(src1));
   }
 
   template<class T, usize N, class Base, class Env>
