@@ -93,60 +93,82 @@ namespace lps::doubling {
   template<class T, usize N, class Base, class Env>
   template<usize shift_amount>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::shl() {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shl<shift_amount>());
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].template shl<shift_amount>();
+    result.raw[1] = raw[1].template shl<shift_amount>();
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   template<usize shift_amount>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::shr() {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shr<shift_amount>());
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].template shr<shift_amount>();
+    result.raw[1] = raw[1].template shr<shift_amount>();
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::andnot(const vector<T, N, Base, Env>& second) const {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(*this).andnot(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].andnot(second.raw[0]);
+    result.raw[1] = raw[1].andnot(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr T vector<T, N, Base, Env>::reduce_add() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).reduce_add();
+    return (raw[0] + raw[1]).reduce_add();
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr T vector<T, N, Base, Env>::reduce_or() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).reduce_or();
+    return (raw[0] | raw[1]).reduce_or();
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr T vector<T, N, Base, Env>::reduce_xor() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).reduce_xor();
+    return (raw[0] ^ raw[1]).reduce_xor();
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::zip_low(const vector<T, N, Base, Env>& second) const {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(*this).zip_low(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].zip_low(second.raw[0]);
+    result.raw[1] = raw[0].zip_high(second.raw[0]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::zip_high(const vector<T, N, Base, Env>& second) const {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(*this).zip_high(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[1].zip_low(second.raw[1]);
+    result.raw[1] = raw[1].zip_high(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::zip_low_128lanes(const vector<T, N, Base, Env>& second) const {
-    return std::bit_cast<vector<T, N, Base, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).zip_low_128lanes(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].zip_low_128lanes(second.raw[0]);
+    result.raw[1] = raw[1].zip_low_128lanes(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::zip_high_128lanes(const vector<T, N, Base, Env>& second) const {
-    return std::bit_cast<vector<T, N, Base, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).zip_high_128lanes(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].zip_high_128lanes(second.raw[0]);
+    result.raw[1] = raw[1].zip_high_128lanes(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env>::mask_type vector<T, N, Base, Env>::test_vm(const vector& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).test_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env>::mask_type result;
+    result.raw[0] = raw[0].test_vm(second.raw[0]);
+    result.raw[1] = raw[1].test_vm(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -156,7 +178,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env>::mask_type vector<T, N, Base, Env>::eq_vm(const vector& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).eq_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env>::mask_type result;
+    result.raw[0] = raw[0].eq_vm(second.raw[0]);
+    result.raw[1] = raw[1].eq_vm(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -166,7 +191,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env>::mask_type vector<T, N, Base, Env>::neq_vm(const vector& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).neq_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env>::mask_type result;
+    result.raw[0] = raw[0].neq_vm(second.raw[0]);
+    result.raw[1] = raw[1].neq_vm(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -176,7 +204,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env>::mask_type vector<T, N, Base, Env>::gt_vm(const vector<T, N, Base, Env>& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).gt_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    vector<T, N, Base, Env>::mask_type result;
+    result.raw[0] = raw[0].gt_vm(second.raw[0]);
+    result.raw[1] = raw[1].gt_vm(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -186,7 +217,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env>::mask_type vector<T, N, Base, Env>::nonzeros_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).nonzeros_vm());
+    vector<T, N, Base, Env>::mask_type result;
+    result.raw[0] = raw[0].nonzeros_vm();
+    result.raw[1] = raw[1].nonzeros_vm();
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -196,12 +230,18 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr usize vector<T, N, Base, Env>::nonzeros_count() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).nonzeros_count();
+    usize result = 0;
+    result += raw[0].nonzeros_count();
+    result += raw[1].nonzeros_count();
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env>::mask_type vector<T, N, Base, Env>::zeros_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).zeros_vm());
+    vector<T, N, Base, Env>::mask_type result;
+    result.raw[0] = raw[0].zeros_vm();
+    result.raw[1] = raw[1].zeros_vm();
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -211,12 +251,18 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr usize vector<T, N, Base, Env>::zeros_count() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).zeros_count();
+    usize result = 0;
+    result += raw[0].zeros_count();
+    result += raw[1].zeros_count();
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env>::mask_type vector<T, N, Base, Env>::msb_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).msb_vm());
+    vector<T, N, Base, Env>::mask_type result;
+    result.raw[0] = raw[0].msb_vm();
+    result.raw[1] = raw[1].msb_vm();
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
