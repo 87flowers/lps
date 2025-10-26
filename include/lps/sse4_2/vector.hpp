@@ -417,7 +417,17 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> operator+(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) + std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      return vector<T, N, Env> { _mm_add_epi8(first.raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u16)) {
+      return vector<T, N, Env> { _mm_add_epi16(first.raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return vector<T, N, Env> { _mm_add_epi32(first.raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u64)) {
+      return vector<T, N, Env> { _mm_add_epi64(first.raw, second.raw) };
+    } else {
+      static_assert(false);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -427,7 +437,17 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> operator-(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) - std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      return vector<T, N, Env> { _mm_sub_epi8(first.raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u16)) {
+      return vector<T, N, Env> { _mm_sub_epi16(first.raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return vector<T, N, Env> { _mm_sub_epi32(first.raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u64)) {
+      return vector<T, N, Env> { _mm_sub_epi64(first.raw, second.raw) };
+    } else {
+      static_assert(false);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -437,7 +457,13 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> operator*(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) * std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (sizeof(T) == sizeof(u16)) {
+      return vector<T, N, Env> { _mm_mullo_epi16(first.raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return vector<T, N, Env> { _mm_mullo_epi32(first.raw, second.raw) };
+    } else {
+      return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) * std::bit_cast<generic::vector<T, N>>(second));
+    }
   }
 
   template<class T, usize N, class Env>
