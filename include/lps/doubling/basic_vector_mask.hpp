@@ -41,15 +41,20 @@ namespace lps::doubling {
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
   constexpr V basic_vector_mask<T, N, Base, Env>::mask(const V& v1) {
-    return select(V::zero(), v1);
+    V result;
+    result.raw[0] = raw[0].mask(v1.raw[0]);
+    result.raw[1] = raw[1].mask(v1.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
   constexpr V basic_vector_mask<T, N, Base, Env>::select(const V& v0, const V& v1) {
-    return std::bit_cast<V>(std::bit_cast<generic::basic_vector_mask<T, N>>(*this).select(
-      std::bit_cast<generic::vector<typename V::element_type, N>>(v0), std::bit_cast<generic::vector<typename V::element_type, N>>(v1)));
+    V result;
+    result.raw[0] = raw[0].select(v0.raw[0], v1.raw[0]);
+    result.raw[1] = raw[1].select(v0.raw[1], v1.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -62,13 +67,15 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   constexpr basic_vector_mask<T, N, Base, Env> basic_vector_mask<T, N, Base, Env>::andnot(const basic_vector_mask<T, N, Base, Env>& second) const {
-    return std::bit_cast<basic_vector_mask<T, N, Base, Env>>(
-      std::bit_cast<generic::basic_vector_mask<T, N>>(*this).andnot(std::bit_cast<generic::basic_vector_mask<T, N>>(second)));
+    basic_vector_mask<T, N, Base, Env> result;
+    result.raw[0] = raw[0].andnot(second.raw[0]);
+    result.raw[1] = raw[1].andnot(second.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   [[nodiscard]] usize basic_vector_mask<T, N, Base, Env>::popcount() const {
-    return std::bit_cast<generic::basic_vector_mask<T, N>>(*this).popcount();
+    return raw[0].popcount() + raw[1].popcount();
   }
 
   template<class T, usize N, class Base, class Env>
@@ -78,7 +85,10 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   [[nodiscard]] detail::bit_mask_base_t<N> basic_vector_mask<T, N, Base, Env>::to_bits() const {
-    return std::bit_cast<generic::basic_vector_mask<T, N>>(*this).to_bits();
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].to_bits()) << (N / 2);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -99,8 +109,10 @@ namespace lps::doubling {
   template<class T, usize N, class Base, class Env>
   constexpr basic_vector_mask<T, N, Base, Env> operator&(const basic_vector_mask<T, N, Base, Env>& first,
                                                          const basic_vector_mask<T, N, Base, Env>& second) {
-    return std::bit_cast<basic_vector_mask<T, N, Base, Env>>(std::bit_cast<generic::basic_vector_mask<T, N>>(first) &
-                                                             std::bit_cast<generic::basic_vector_mask<T, N>>(second));
+    basic_vector_mask<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] & second.raw[0];
+    result.raw[1] = first.raw[1] & second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
@@ -112,8 +124,10 @@ namespace lps::doubling {
   template<class T, usize N, class Base, class Env>
   constexpr basic_vector_mask<T, N, Base, Env> operator|(const basic_vector_mask<T, N, Base, Env>& first,
                                                          const basic_vector_mask<T, N, Base, Env>& second) {
-    return std::bit_cast<basic_vector_mask<T, N, Base, Env>>(std::bit_cast<generic::basic_vector_mask<T, N>>(first) |
-                                                             std::bit_cast<generic::basic_vector_mask<T, N>>(second));
+    basic_vector_mask<T, N, Base, Env> result;
+    result.raw[0] = first.raw[0] | second.raw[0];
+    result.raw[1] = first.raw[1] | second.raw[1];
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
