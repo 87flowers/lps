@@ -12,6 +12,11 @@
 namespace lps::avx2 {
 
   template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env>::basic_vector_mask(inner_type::raw_type value) :
+      raw(value) {
+  }
+
+  template<class T, usize N, class Env>
   constexpr basic_vector_mask<T, N, Env>::basic_vector_mask(detail::bit_mask_base_t<N> value) {
     std::array<T, N> a;
     for (usize i = 0; i < N; i++) {

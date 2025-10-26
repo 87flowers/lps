@@ -5,6 +5,7 @@
 
 #include <array>
 #include <immintrin.h>
+#include <tuple>
 
 namespace lps::avx2 {
 

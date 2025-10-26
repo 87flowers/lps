@@ -16,6 +16,7 @@ namespace lps::avx2 {
     using inner_type = Env::template vector<T, N>;
 
     constexpr basic_vector_mask() = default;
+    explicit constexpr basic_vector_mask(inner_type::raw_type value);
     explicit constexpr basic_vector_mask(detail::bit_mask_base_t<N> value);
 
     static constexpr basic_vector_mask zero();

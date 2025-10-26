@@ -182,8 +182,14 @@ namespace lps::sse4_2 {
     if constexpr (sizeof(T) == sizeof(u8)) {
       constexpr u8 mask = static_cast<u8>(0xFF << shift_amount);
       return vector { _mm_slli_epi16(raw, shift_amount) } & vector::splat(mask);
+    } else if constexpr (sizeof(T) == sizeof(u16)) {
+      return vector { _mm_slli_epi16(raw, shift_amount) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return vector { _mm_slli_epi32(raw, shift_amount) };
+    } else if constexpr (sizeof(T) == sizeof(u64)) {
+      return vector { _mm_slli_epi64(raw, shift_amount) };
     } else {
-      return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shl<shift_amount>());
+      static_assert(false);
     }
   }
 
@@ -193,8 +199,14 @@ namespace lps::sse4_2 {
     if constexpr (sizeof(T) == sizeof(u8)) {
       constexpr u8 mask = static_cast<u8>(0xFF >> shift_amount);
       return vector { _mm_srli_epi16(raw, shift_amount) } & vector::splat(mask);
+    } else if constexpr (sizeof(T) == sizeof(u16)) {
+      return vector { _mm_srli_epi16(raw, shift_amount) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return vector { _mm_srli_epi32(raw, shift_amount) };
+    } else if constexpr (sizeof(T) == sizeof(u64)) {
+      return vector { _mm_srli_epi64(raw, shift_amount) };
     } else {
-      return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shr<shift_amount>());
+      static_assert(false);
     }
   }
 
