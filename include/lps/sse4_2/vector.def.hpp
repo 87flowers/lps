@@ -15,6 +15,7 @@ namespace lps::sse4_2 {
     using element_type = T;
     static constexpr usize size = N;
     using mask_type = typename Env::template vector_mask<T, N>;
+    using dup_vector = typename Env::template vector<T, N * 2>;
 
     constexpr vector() = default;
     explicit constexpr vector(__m128i src);
@@ -31,6 +32,7 @@ namespace lps::sse4_2 {
 
     template<class V, usize extract_index>
     constexpr V extract_aligned();
+    constexpr dup_vector dup() const;
 
     // forall i: result[i] = src[this[i]]
     constexpr vector swizzle(const vector& src);

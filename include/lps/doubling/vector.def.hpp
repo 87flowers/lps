@@ -4,6 +4,7 @@
 #include "lps/stdint.hpp"
 
 #include <array>
+#include <tuple>
 
 namespace lps::doubling {
 
@@ -14,6 +15,8 @@ namespace lps::doubling {
     using element_type = T;
     static constexpr usize size = N;
     using mask_type = typename Env::template vector_mask<T, N>;
+    using half_vector = typename Env::template vector<T, N / 2>;
+    using dup_vector = typename Env::template vector<T, N * 2>;
 
     constexpr vector() = default;
 
@@ -21,6 +24,7 @@ namespace lps::doubling {
 
     static constexpr vector zero();
     static constexpr vector splat(T value);
+    static constexpr vector splat(half_vector value);
     static vector load(const void* src);
 
     constexpr T read(usize i) const;
@@ -30,6 +34,8 @@ namespace lps::doubling {
 
     template<class V, usize extract_index>
     constexpr V extract_aligned();
+    constexpr std::tuple<half_vector, half_vector> split() const;
+    constexpr dup_vector dup() const;
 
     // forall i: result[i] = src[this[i]]
     constexpr vector swizzle(const vector& src);

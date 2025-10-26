@@ -147,6 +147,11 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
+  constexpr typename vector<T, N, Env>::dup_vector vector<T, N, Env>::dup() const {
+    return dup_vector::splat(*this);
+  }
+
+  template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src) {
     return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src)));
   }

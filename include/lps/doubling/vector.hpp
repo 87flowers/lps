@@ -34,6 +34,13 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Base, class Env>
+  constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::splat(half_vector value) {
+    vector<T, N, Base, Env> result;
+    result.raw = { value, value };
+    return result;
+  }
+
+  template<class T, usize N, class Base, class Env>
   vector<T, N, Base, Env> vector<T, N, Base, Env>::load(const void* src) {
     vector v;
     std::memcpy(v.raw.data(), src, sizeof(v.raw));
@@ -67,14 +74,38 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Base, class Env>
+  constexpr std::tuple<typename vector<T, N, Base, Env>::half_vector, typename vector<T, N, Base, Env>::half_vector>
+    vector<T, N, Base, Env>::split() const {
+    return { raw[0], raw[1] };
+  }
+
+  template<class T, usize N, class Base, class Env>
+  constexpr typename vector<T, N, Base, Env>::dup_vector vector<T, N, Base, Env>::dup() const {
+    return dup_vector::splat(*this);
+  }
+
+  template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const vector<T, N, Base, Env>& src) {
-    return std::bit_cast<vector<T, N, Base, Env>>(std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src)));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].swizzle(src.raw[0], src.raw[1]);
+    result.raw[1] = raw[1].swizzle(src.raw[0], src.raw[1]);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const vector<T, N, Base, Env>& src0, const vector<T, N, Base, Env>& src1) {
-    return std::bit_cast<vector<T, N, Base, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src0), std::bit_cast<generic::vector<T, N>>(src1)));
+    static_assert(std::has_single_bit(N));
+
+    auto mask0 = test(vector<T, N, Base, Env>::splat(N));
+    auto mask1 = test(vector<T, N, Base, Env>::splat(N >> 1));
+    auto index = andnot(vector<T, N, Base, Env>::splat(N | (N >> 1)));
+
+    auto [src00, src01] = src0.split();
+    auto [src10, src11] = src1.split();
+
+    auto x = mask1.select(index.swizzle(src00.dup()), index.swizzle(src01.dup()));
+    auto y = mask1.select(index.swizzle(src10.dup()), index.swizzle(src11.dup()));
+    return mask0.select(x, y);
   }
 
   template<class T, usize N, class Base, class Env>
@@ -86,8 +117,10 @@ namespace lps::doubling {
   constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const Env::template vector<T, 16 / sizeof(T)>& src)
     requires(16 / sizeof(T) != N)
   {
-    return std::bit_cast<vector<T, N, Base, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, 16 / sizeof(T)>>(src)));
+    vector<T, N, Base, Env> result;
+    result.raw[0] = raw[0].swizzle(src);
+    result.raw[1] = raw[1].swizzle(src);
+    return result;
   }
 
   template<class T, usize N, class Base, class Env>

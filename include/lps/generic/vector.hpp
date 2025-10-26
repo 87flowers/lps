@@ -24,6 +24,14 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
+  constexpr vector<T, N> vector<T, N>::splat(half_vector value) {
+    vector v;
+    std::copy(value.raw.begin(), value.raw.end(), v.raw.begin());
+    std::copy(value.raw.begin(), value.raw.end(), v.raw.begin() + N / 2);
+    return v;
+  }
+
+  template<class T, usize N>
   vector<T, N> vector<T, N>::load(const void* src) {
     vector v;
     std::memcpy(v.raw.data(), src, sizeof(v.raw));
@@ -56,6 +64,16 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
+  constexpr std::tuple<typename vector<T, N>::half_vector, typename vector<T, N>::half_vector> vector<T, N>::split() const {
+    return { extract_aligned<half_vector, 0>(), extract_aligned<half_vector, 1>() };
+  }
+
+  template<class T, usize N>
+  constexpr typename vector<T, N>::dup_vector vector<T, N>::dup() const {
+    return dup_vector::splat(*this);
+  }
+
+  template<class T, usize N>
   constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
@@ -68,7 +86,7 @@ namespace lps::generic {
   constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src0, const vector<T, N>& src1) {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
-      result.raw[i] = raw[i] < 2 * N ? (raw[i] < N ? src0 : src1).raw[raw[i]] : 0;
+      result.raw[i] = (raw[i] < 2 * N) ? ((raw[i] < N) ? src0 : src1).raw[raw[i] % N] : 0;
     }
     return result;
   }

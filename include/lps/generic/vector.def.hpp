@@ -12,6 +12,8 @@ namespace lps::generic {
     using element_type = T;
     static constexpr usize size = N;
     using mask_type = vector_mask<T, N>;
+    using half_vector = vector<T, N / 2>;
+    using dup_vector = vector<T, N * 2>;
 
     constexpr vector() = default;
 
@@ -21,6 +23,7 @@ namespace lps::generic {
 
     static constexpr vector zero();
     static constexpr vector splat(T value);
+    static constexpr vector splat(half_vector value);
     static vector load(const void* src);
 
     constexpr T read(usize i) const;
@@ -30,6 +33,8 @@ namespace lps::generic {
 
     template<class V, usize extract_index>
     constexpr V extract_aligned();
+    constexpr std::tuple<half_vector, half_vector> split() const;
+    constexpr dup_vector dup() const;
 
     // forall i: result[i] = src[this[i]]
     constexpr vector swizzle(const vector& src);
