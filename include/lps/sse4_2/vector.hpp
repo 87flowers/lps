@@ -220,29 +220,49 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::zip_low(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).zip_low(std::bit_cast<generic::vector<T, N>>(second)));
+    // SAFETY: We are made up of one 128 lane.
+    return zip_low_128lanes(second);
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::zip_high(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).zip_high(std::bit_cast<generic::vector<T, N>>(second)));
+    // SAFETY: We are made up of one 128 lane.
+    return zip_high_128lanes(second);
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::zip_low_128lanes(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).zip_low_128lanes(std::bit_cast<generic::vector<T, N>>(second)));
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      return vector { _mm_unpacklo_epi8(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u16)) {
+      return vector { _mm_unpacklo_epi16(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return vector { _mm_unpacklo_epi32(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u64)) {
+      return vector { _mm_unpacklo_epi64(raw, second.raw) };
+    } else {
+      static_assert(false);
+    }
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> vector<T, N, Env>::zip_high_128lanes(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).zip_high_128lanes(std::bit_cast<generic::vector<T, N>>(second)));
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      return vector { _mm_unpackhi_epi8(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u16)) {
+      return vector { _mm_unpackhi_epi16(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return vector { _mm_unpackhi_epi32(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u64)) {
+      return vector { _mm_unpackhi_epi64(raw, second.raw) };
+    } else {
+      static_assert(false);
+    }
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::test_vm(const vector& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).test_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    return zero().neq_vm(*this & second);
   }
 
   template<class T, usize N, class Env>
@@ -252,7 +272,17 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::eq_vm(const vector& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).eq_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    if constexpr (sizeof(T) == sizeof(u8)) {
+      return mask_type { _mm_cmpeq_epi8(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u16)) {
+      return mask_type { _mm_cmpeq_epi16(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u32)) {
+      return mask_type { _mm_cmpeq_epi32(raw, second.raw) };
+    } else if constexpr (sizeof(T) == sizeof(u64)) {
+      return mask_type { _mm_cmpeq_epi64(raw, second.raw) };
+    } else {
+      static_assert(false);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -262,7 +292,7 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::neq_vm(const vector& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).neq_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    return ~eq_vm(second);
   }
 
   template<class T, usize N, class Env>
@@ -272,7 +302,25 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt_vm(const vector<T, N, Env>& second) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).gt_vm(std::bit_cast<generic::vector<T, N>>(second)));
+    if constexpr (std::is_same_v<T, i8>) {
+      return mask_type { _mm_cmpgt_epi8(raw, second.raw) };
+    } else if constexpr (std::is_same_v<T, i16>) {
+      return mask_type { _mm_cmpgt_epi16(raw, second.raw) };
+    } else if constexpr (std::is_same_v<T, i32>) {
+      return mask_type { _mm_cmpgt_epi32(raw, second.raw) };
+    } else if constexpr (std::is_same_v<T, i64>) {
+      return mask_type { _mm_cmpgt_epi64(raw, second.raw) };
+    } else if constexpr (std::is_same_v<T, u8>) {
+      return ~mask_type { _mm_cmpeq_epi8(_mm_min_epu8(raw, second.raw), raw) };
+    } else if constexpr (std::is_same_v<T, u16>) {
+      return ~mask_type { _mm_cmpeq_epi16(_mm_min_epu16(raw, second.raw), raw) };
+    } else if constexpr (std::is_same_v<T, u32>) {
+      return ~mask_type { _mm_cmpeq_epi32(_mm_min_epu32(raw, second.raw), raw) };
+    } else if constexpr (std::is_same_v<T, u64>) {
+      static_assert(false, "unimplemented");
+    } else {
+      static_assert(false);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -282,7 +330,7 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::nonzeros_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).nonzeros_vm());
+    return neq_vm(zero());
   }
 
   template<class T, usize N, class Env>
@@ -292,12 +340,12 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr usize vector<T, N, Env>::nonzeros_count() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).nonzeros_count();
+    return nonzeros().popcount();
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::zeros_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).zeros_vm());
+    return eq_vm(zero());
   }
 
   template<class T, usize N, class Env>
@@ -307,12 +355,13 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr usize vector<T, N, Env>::zeros_count() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).zeros_count();
+    return zeros().popcount();
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::msb_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).msb_vm());
+    constexpr T msb_bit = static_cast<T>(1) << (sizeof(T) * CHAR_BIT - 1);
+    return test_vm(vector::splat(msb_bit));
   }
 
   template<class T, usize N, class Env>
@@ -333,12 +382,12 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> operator~(const vector<T, N, Env>& first) {
-    return std::bit_cast<vector<T, N, Env>>(~std::bit_cast<generic::vector<T, N>>(first));
+    return first ^ vector<T, N, Env>::splat(static_cast<T>(~static_cast<T>(0)));
   }
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> operator&(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) & std::bit_cast<generic::vector<T, N>>(second));
+    return vector<T, N, Env> { _mm_and_si128(first.raw, second.raw) };
   }
 
   template<class T, usize N, class Env>
@@ -348,7 +397,7 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> operator|(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) | std::bit_cast<generic::vector<T, N>>(second));
+    return vector<T, N, Env> { _mm_or_si128(first.raw, second.raw) };
   }
 
   template<class T, usize N, class Env>
@@ -358,7 +407,7 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env> operator^(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) ^ std::bit_cast<generic::vector<T, N>>(second));
+    return vector<T, N, Env> { _mm_xor_si128(first.raw, second.raw) };
   }
 
   template<class T, usize N, class Env>

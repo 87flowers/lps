@@ -6,6 +6,7 @@
 #include "lps/stdint.hpp"
 
 #include <array>
+#include <nmmintrin.h>
 #include <type_traits>
 
 namespace lps::sse4_2 {
@@ -16,6 +17,7 @@ namespace lps::sse4_2 {
     using inner_type = Env::template vector<T, N>;
 
     constexpr basic_vector_mask() = default;
+    explicit constexpr basic_vector_mask(__m128i value);
     explicit constexpr basic_vector_mask(detail::bit_mask_base_t<N> value);
 
     static constexpr basic_vector_mask zero();
