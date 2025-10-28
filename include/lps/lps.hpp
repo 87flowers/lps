@@ -4,6 +4,8 @@
 
 #if defined(__AVX2__) && __AVX2__
 
+#define LPS_AVX2 1
+
 #include "lps/avx2/avx2.hpp"
 
 namespace lps {
@@ -11,6 +13,8 @@ namespace lps {
 }  // namespace lps
 
 #elif defined(__SSE4_2__) && __SSE4_2__
+
+#define LPS_SSE4_2 1
 
 #include "lps/sse4_2/sse4_2.hpp"
 

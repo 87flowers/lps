@@ -12,12 +12,12 @@
 namespace lps::avx2 {
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env>::basic_vector_mask(inner_type::raw_type value) :
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env>::basic_vector_mask(inner_type::raw_type value) :
       raw(value) {
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env>::basic_vector_mask(detail::bit_mask_base_t<N> value) {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env>::basic_vector_mask(detail::bit_mask_base_t<N> value) {
     std::array<T, N> a;
     for (usize i = 0; i < N; i++) {
       a[i] = ((value >> i) & 1) ? true_value : false_value;
@@ -26,21 +26,21 @@ namespace lps::avx2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env> basic_vector_mask<T, N, Env>::zero() {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env> basic_vector_mask<T, N, Env>::zero() {
     basic_vector_mask<T, N, Env> result;
     result.raw = inner_type::zero();
     return result;
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env> basic_vector_mask<T, N, Env>::splat(bool value) {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env> basic_vector_mask<T, N, Env>::splat(bool value) {
     basic_vector_mask<T, N, Env> result;
     result.raw = inner_type::splat(value ? true_value : false_value);
     return result;
   }
 
   template<class T, usize N, class Env>
-  constexpr void basic_vector_mask<T, N, Env>::set(usize index, bool value) {
+  LPS_INLINE constexpr void basic_vector_mask<T, N, Env>::set(usize index, bool value) {
     std::array<T, N> a = to_array();
     a[index] = value ? true_value : false_value;
     raw = std::bit_cast<inner_type>(a);
@@ -49,14 +49,14 @@ namespace lps::avx2 {
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) {
-    return select(V::zero(), v1);
+  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) {
+    return V { raw.raw } & v1;
   }
 
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  constexpr V basic_vector_mask<T, N, Env>::select(const V& v0, const V& v1) {
+  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::select(const V& v0, const V& v1) {
     if constexpr (V::is_128_bit) {
       return V { _mm_blendv_epi8(v0.raw, v1.raw, raw.raw) };
     } else {
@@ -67,13 +67,13 @@ namespace lps::avx2 {
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) {
+  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) {
     return std::bit_cast<V>(
       std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env> basic_vector_mask<T, N, Env>::andnot(const basic_vector_mask<T, N, Env>& second) const {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env> basic_vector_mask<T, N, Env>::andnot(const basic_vector_mask<T, N, Env>& second) const {
     if constexpr (inner_type::is_128_bit) {
       return basic_vector_mask { _mm_andnot_si128(second.raw.raw, raw.raw) };
     } else {
@@ -82,7 +82,7 @@ namespace lps::avx2 {
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] usize basic_vector_mask<T, N, Env>::popcount() const {
+  [[nodiscard]] LPS_INLINE usize basic_vector_mask<T, N, Env>::popcount() const {
     if constexpr (inner_type::is_128_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
         return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(raw.raw))));
@@ -111,12 +111,12 @@ namespace lps::avx2 {
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] std::array<T, N> basic_vector_mask<T, N, Env>::to_array() const {
-    return std::bit_cast<std::array<T, N>>(*this);
+  [[nodiscard]] LPS_INLINE std::array<T, N> basic_vector_mask<T, N, Env>::to_array() const {
+    return raw.to_array();
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] detail::bit_mask_base_t<N> basic_vector_mask<T, N, Env>::to_bits() const {
+  [[nodiscard]] LPS_INLINE detail::bit_mask_base_t<N> basic_vector_mask<T, N, Env>::to_bits() const {
     if constexpr (inner_type::is_128_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
         return static_cast<u16>(_mm_movemask_epi8(raw.raw));
@@ -145,43 +145,43 @@ namespace lps::avx2 {
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] basic_vector_mask<T, N, Env>::inner_type basic_vector_mask<T, N, Env>::to_vector() const {
-    return std::bit_cast<basic_vector_mask<T, N, Env>::inner_type>(*this);
+  [[nodiscard]] LPS_INLINE basic_vector_mask<T, N, Env>::inner_type basic_vector_mask<T, N, Env>::to_vector() const {
+    return raw;
   }
 
   template<class T, usize N, class Env>
-  constexpr bool operator==(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+  LPS_INLINE constexpr bool operator==(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
     return first.raw == second.raw;
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env> operator~(const basic_vector_mask<T, N, Env>& first) {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env> operator~(const basic_vector_mask<T, N, Env>& first) {
     basic_vector_mask<T, N, Env> result;
     result.raw = ~first.raw;
     return result;
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env> operator&(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env> operator&(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
     basic_vector_mask<T, N, Env> result;
     result.raw = first.raw & second.raw;
     return result;
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env>& operator&=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env>& operator&=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
     return first = first & second;
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env> operator|(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env> operator|(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
     basic_vector_mask<T, N, Env> result;
     result.raw = first.raw | second.raw;
     return result;
   }
 
   template<class T, usize N, class Env>
-  constexpr basic_vector_mask<T, N, Env>& operator|=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env>& operator|=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
     return first = first | second;
   }
 
