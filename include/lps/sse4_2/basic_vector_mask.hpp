@@ -7,7 +7,7 @@
 #include "lps/stdint.hpp"
 
 #include <array>
-#include <x86intrin.h>
+#include <nmmintrin.h>
 
 namespace lps::sse4_2 {
 
@@ -78,7 +78,7 @@ namespace lps::sse4_2 {
     if constexpr (sizeof(T) == sizeof(u8)) {
       return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(raw.raw))));
     } else if constexpr (sizeof(T) == sizeof(u16)) {
-      return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(raw.raw) & 0xAAAA)));
+      return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(_mm_packus_epi16(raw.raw, _mm_setzero_si128())))));
     } else if constexpr (sizeof(T) == sizeof(u32)) {
       return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_ps((__m128)raw.raw))));
     } else if constexpr (sizeof(T) == sizeof(u64)) {
@@ -98,7 +98,7 @@ namespace lps::sse4_2 {
     if constexpr (sizeof(T) == sizeof(u8)) {
       return static_cast<u16>(_mm_movemask_epi8(raw.raw));
     } else if constexpr (sizeof(T) == sizeof(u16)) {
-      return static_cast<u8>(_pext_u32(static_cast<u32>(_mm_movemask_epi8(raw.raw)), 0xAAAA));
+      return static_cast<u8>(_mm_movemask_epi8(_mm_packus_epi16(raw.raw, _mm_setzero_si128())));
     } else if constexpr (sizeof(T) == sizeof(u32)) {
       return static_cast<u8>(_mm_movemask_ps((__m128)raw.raw));
     } else if constexpr (sizeof(T) == sizeof(u64)) {
