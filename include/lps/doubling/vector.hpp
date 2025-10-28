@@ -56,7 +56,7 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   template<class U>
-  LPS_INLINE constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Base, Env>::convert() {
+  LPS_INLINE constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Base, Env>::convert() const {
     // TODO
     generic::vector<U, std::max(N, 16 / sizeof(U))> result;
     for (usize i = 0; i < N; i++) {
@@ -67,7 +67,7 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   template<class V, usize extract_index>
-  LPS_INLINE constexpr V vector<T, N, Base, Env>::extract_aligned() {
+  LPS_INLINE constexpr V vector<T, N, Base, Env>::extract_aligned() const {
     V value;
     std::memcpy(&value, reinterpret_cast<const char*>(raw.data()) + extract_index * sizeof(V), sizeof(V));
     return value;
@@ -85,7 +85,7 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Base, class Env>
-  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const vector<T, N, Base, Env>& src) {
+  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const vector<T, N, Base, Env>& src) const {
     vector<T, N, Base, Env> result;
     result.raw[0] = raw[0].swizzle(src.raw[0], src.raw[1]);
     result.raw[1] = raw[1].swizzle(src.raw[0], src.raw[1]);
@@ -94,7 +94,7 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const vector<T, N, Base, Env>& src0,
-                                                                                const vector<T, N, Base, Env>& src1) {
+                                                                                const vector<T, N, Base, Env>& src1) const {
     static_assert(std::has_single_bit(N));
 
     auto mask0 = test(vector<T, N, Base, Env>::splat(N));
@@ -103,12 +103,12 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Base, class Env>
-  LPS_INLINE constexpr vector<T, N, Base, Env>::vmask_type vector<T, N, Base, Env>::swizzle(const vmask_type& src) {
+  LPS_INLINE constexpr vector<T, N, Base, Env>::vmask_type vector<T, N, Base, Env>::swizzle(const vmask_type& src) const {
     return std::bit_cast<vmask_type>(swizzle(std::bit_cast<vector>(src)));
   }
 
   template<class T, usize N, class Base, class Env>
-  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const Env::template vector<T, 16 / sizeof(T)>& src)
+  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::swizzle(const Env::template vector<T, 16 / sizeof(T)>& src) const
     requires(16 / sizeof(T) != N)
   {
     vector<T, N, Base, Env> result;
@@ -119,7 +119,7 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   template<usize shift_amount>
-  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::shl() {
+  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::shl() const {
     vector<T, N, Base, Env> result;
     result.raw[0] = raw[0].template shl<shift_amount>();
     result.raw[1] = raw[1].template shl<shift_amount>();
@@ -128,7 +128,7 @@ namespace lps::doubling {
 
   template<class T, usize N, class Base, class Env>
   template<usize shift_amount>
-  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::shr() {
+  LPS_INLINE constexpr vector<T, N, Base, Env> vector<T, N, Base, Env>::shr() const {
     vector<T, N, Base, Env> result;
     result.raw[0] = raw[0].template shr<shift_amount>();
     result.raw[1] = raw[1].template shr<shift_amount>();

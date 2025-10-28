@@ -65,7 +65,7 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   template<class U>
-  constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() {
+  constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() const {
     using Result = Env::template vector<U, std::max(N, 16 / sizeof(U))>;
     if constexpr (sizeof(T) == sizeof(u8)) {
       if constexpr (sizeof(U) == sizeof(u8)) {
@@ -140,7 +140,7 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   template<class V, usize extract_index>
-  constexpr V vector<T, N, Env>::extract_aligned() {
+  constexpr V vector<T, N, Env>::extract_aligned() const {
     V value;
     std::memcpy(&value, reinterpret_cast<const char*>(&raw) + extract_index * sizeof(V), sizeof(V));
     return value;
@@ -152,7 +152,7 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src) {
+  constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src) const {
     if constexpr (sizeof(T) == sizeof(u8)) {
       return vector { _mm_shuffle_epi8(src.raw, raw) };
     } else {
@@ -161,7 +161,7 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src0, const vector<T, N, Env>& src1) {
+  constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src0, const vector<T, N, Env>& src1) const {
     if constexpr (sizeof(T) == sizeof(u8)) {
       __m128i mask = _mm_slli_epi16(raw, 3);
       return vector { _mm_blendv_epi8(_mm_shuffle_epi8(src0.raw, raw), _mm_shuffle_epi8(src1.raw, raw), mask) };
@@ -172,13 +172,13 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::swizzle(const mask_type& src) {
+  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::swizzle(const mask_type& src) const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector_mask<T, N>>(src)));
   }
 
   template<class T, usize N, class Env>
   template<usize shift_amount>
-  constexpr vector<T, N, Env> vector<T, N, Env>::shl() {
+  constexpr vector<T, N, Env> vector<T, N, Env>::shl() const {
     if constexpr (sizeof(T) == sizeof(u8)) {
       constexpr u8 mask = static_cast<u8>(0xFF << shift_amount);
       return vector { _mm_slli_epi16(raw, shift_amount) } & vector::splat(mask);
@@ -195,7 +195,7 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   template<usize shift_amount>
-  constexpr vector<T, N, Env> vector<T, N, Env>::shr() {
+  constexpr vector<T, N, Env> vector<T, N, Env>::shr() const {
     if constexpr (sizeof(T) == sizeof(u8)) {
       constexpr u8 mask = static_cast<u8>(0xFF >> shift_amount);
       return vector { _mm_srli_epi16(raw, shift_amount) } & vector::splat(mask);

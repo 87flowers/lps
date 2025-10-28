@@ -43,15 +43,15 @@ namespace lps::generic {
 
     template<class U>
       requires std::is_same_v<T, detail::mask_element_t<U>>
-    constexpr vector<U, N> mask(const vector<U, N>& v1);
+    constexpr vector<U, N> mask(const vector<U, N>& v1) const;
 
     template<class U>
       requires std::is_same_v<T, detail::mask_element_t<U>>
-    constexpr vector<U, N> select(const vector<U, N>& v0, const vector<U, N>& v1);
+    constexpr vector<U, N> select(const vector<U, N>& v0, const vector<U, N>& v1) const;
 
     template<class U>
       requires std::is_same_v<T, detail::mask_element_t<U>>
-    constexpr vector<U, N> compress(const vector<U, N>& v);
+    constexpr vector<U, N> compress(const vector<U, N>& v) const;
 
     constexpr basic_vector_mask andnot(const basic_vector_mask& second) const;
 

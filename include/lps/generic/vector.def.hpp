@@ -34,28 +34,28 @@ namespace lps::generic {
     constexpr T read(usize i) const;
 
     template<class U>
-    constexpr vector<U, std::max(N, 16 / sizeof(U))> convert();
+    constexpr vector<U, std::max(N, 16 / sizeof(U))> convert() const;
 
     template<class V, usize extract_index>
-    constexpr V extract_aligned();
+    constexpr V extract_aligned() const;
     constexpr std::tuple<half_vector, half_vector> split() const;
     constexpr dup_vector dup() const;
 
     // forall i: result[i] = src[this[i]]
-    constexpr vector swizzle(const vector& src);
+    constexpr vector swizzle(const vector& src) const;
     // forall i: result[i] = concat[this[i]] where contact is concatenation of src0 and src1
-    constexpr vector swizzle(const vector& src0, const vector& src1);
+    constexpr vector swizzle(const vector& src0, const vector& src1) const;
 
-    constexpr mask_type swizzle(const mask_type& src);
+    constexpr mask_type swizzle(const mask_type& src) const;
 
     template<usize M>
       requires(M != N)
-    constexpr vector swizzle(const vector<T, M>& src);
+    constexpr vector swizzle(const vector<T, M>& src) const;
 
     template<usize shift_amount>
-    constexpr vector shl();
+    constexpr vector shl() const;
     template<usize shift_amount>
-    constexpr vector shr();
+    constexpr vector shr() const;
 
     constexpr vector andnot(const vector& second) const;
 

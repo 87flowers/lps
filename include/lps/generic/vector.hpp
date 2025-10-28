@@ -45,7 +45,7 @@ namespace lps::generic {
 
   template<class T, usize N>
   template<class U>
-  constexpr vector<U, std::max(N, 16 / sizeof(U))> vector<T, N>::convert() {
+  constexpr vector<U, std::max(N, 16 / sizeof(U))> vector<T, N>::convert() const {
     vector<U, std::max(N, 16 / sizeof(U))> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = static_cast<U>(raw[i]);
@@ -55,7 +55,7 @@ namespace lps::generic {
 
   template<class T, usize N>
   template<class V, usize extract_index>
-  constexpr V vector<T, N>::extract_aligned() {
+  constexpr V vector<T, N>::extract_aligned() const {
     V result;
     for (usize i = 0; i < V::size; i++) {
       result.raw[i] = raw[extract_index * V::size + i];
@@ -74,7 +74,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src) {
+  constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src) const {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = raw[i] < N ? src.raw[raw[i]] : 0;
@@ -83,7 +83,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src0, const vector<T, N>& src1) {
+  constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, N>& src0, const vector<T, N>& src1) const {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = (raw[i] < 2 * N) ? ((raw[i] < N) ? src0 : src1).raw[raw[i] % N] : 0;
@@ -92,7 +92,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::swizzle(const vector<T, N>::mask_type& src) {
+  constexpr vector<T, N>::mask_type vector<T, N>::swizzle(const vector<T, N>::mask_type& src) const {
     vector<T, N>::mask_type result;
     result.raw = swizzle(src.raw);
     return result;
@@ -101,7 +101,7 @@ namespace lps::generic {
   template<class T, usize N>
   template<usize M>
     requires(M != N)
-  constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, M>& src) {
+  constexpr vector<T, N> vector<T, N>::swizzle(const vector<T, M>& src) const {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = raw[i] < M ? src.raw[raw[i]] : 0;
@@ -111,7 +111,7 @@ namespace lps::generic {
 
   template<class T, usize N>
   template<usize shift_amount>
-  constexpr vector<T, N> vector<T, N>::shl() {
+  constexpr vector<T, N> vector<T, N>::shl() const {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = raw[i] << shift_amount;
@@ -121,7 +121,7 @@ namespace lps::generic {
 
   template<class T, usize N>
   template<usize shift_amount>
-  constexpr vector<T, N> vector<T, N>::shr() {
+  constexpr vector<T, N> vector<T, N>::shr() const {
     vector<T, N> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = raw[i] >> shift_amount;

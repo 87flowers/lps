@@ -49,14 +49,14 @@ namespace lps::avx2 {
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) {
+  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) const {
     return V { raw.raw } & v1;
   }
 
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::select(const V& v0, const V& v1) {
+  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::select(const V& v0, const V& v1) const {
     if constexpr (V::is_128_bit) {
       return V { _mm_blendv_epi8(v0.raw, v1.raw, raw.raw) };
     } else {
@@ -67,7 +67,7 @@ namespace lps::avx2 {
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) {
+  LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) const {
     return std::bit_cast<V>(
       std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
   }

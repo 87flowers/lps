@@ -49,21 +49,21 @@ namespace lps::sse4_2 {
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) {
+  constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) const {
     return select(V::zero(), v1);
   }
 
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  constexpr V basic_vector_mask<T, N, Env>::select(const V& v0, const V& v1) {
+  constexpr V basic_vector_mask<T, N, Env>::select(const V& v0, const V& v1) const {
     return V { _mm_blendv_epi8(v0.raw, v1.raw, raw.raw) };
   }
 
   template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-  constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) {
+  constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) const {
     return std::bit_cast<V>(
       std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
   }
@@ -78,7 +78,7 @@ namespace lps::sse4_2 {
     if constexpr (sizeof(T) == sizeof(u8)) {
       return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(raw.raw))));
     } else if constexpr (sizeof(T) == sizeof(u16)) {
-      return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(_mm_packus_epi16(raw.raw, _mm_setzero_si128())))));
+      return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(_mm_packus_epi16(raw.template shr<8>().raw, _mm_setzero_si128())))));
     } else if constexpr (sizeof(T) == sizeof(u32)) {
       return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_ps((__m128)raw.raw))));
     } else if constexpr (sizeof(T) == sizeof(u64)) {
@@ -98,7 +98,7 @@ namespace lps::sse4_2 {
     if constexpr (sizeof(T) == sizeof(u8)) {
       return static_cast<u16>(_mm_movemask_epi8(raw.raw));
     } else if constexpr (sizeof(T) == sizeof(u16)) {
-      return static_cast<u8>(_mm_movemask_epi8(_mm_packus_epi16(raw.raw, _mm_setzero_si128())));
+      return static_cast<u8>(_mm_movemask_epi8(_mm_packus_epi16(raw.template shr<8>().raw, _mm_setzero_si128())));
     } else if constexpr (sizeof(T) == sizeof(u32)) {
       return static_cast<u8>(_mm_movemask_ps((__m128)raw.raw));
     } else if constexpr (sizeof(T) == sizeof(u64)) {

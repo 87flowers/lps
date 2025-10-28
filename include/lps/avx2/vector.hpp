@@ -87,7 +87,7 @@ namespace lps::avx2 {
 
   template<class T, usize N, class Env>
   template<class U>
-  LPS_INLINE constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() {
+  LPS_INLINE constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() const {
     using Result = Env::template vector<U, std::max(N, 16 / sizeof(U))>;
     if constexpr (is_128_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
@@ -221,14 +221,14 @@ namespace lps::avx2 {
 
   template<class T, usize N, class Env>
   template<class V, usize extract_index>
-  LPS_INLINE constexpr V vector<T, N, Env>::extract_aligned() {
+  LPS_INLINE constexpr V vector<T, N, Env>::extract_aligned() const {
     V value;
     std::memcpy(&value, reinterpret_cast<const char*>(&raw) + extract_index * sizeof(V), sizeof(V));
     return value;
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src) {
+  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src) const {
     if constexpr (sizeof(T) == sizeof(u8)) {
       if constexpr (is_128_bit) {
         return vector { _mm_shuffle_epi8(src.raw, raw) };
@@ -243,7 +243,7 @@ namespace lps::avx2 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src0, const vector<T, N, Env>& src1) {
+  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src0, const vector<T, N, Env>& src1) const {
     if constexpr (sizeof(T) == sizeof(u8)) {
       if constexpr (is_128_bit) {
         __m128i mask = _mm_slli_epi16(raw, 3);
@@ -258,12 +258,12 @@ namespace lps::avx2 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::swizzle(const mask_type& src) {
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::swizzle(const mask_type& src) const {
     return std::bit_cast<mask_type>(swizzle(std::bit_cast<vector>(src)));
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const Env::template vector<T, 16 / sizeof(T)>& src)
+  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const Env::template vector<T, 16 / sizeof(T)>& src) const
     requires(16 / sizeof(T) != N)
   {
     if constexpr (sizeof(T) == sizeof(u8)) {
@@ -276,7 +276,7 @@ namespace lps::avx2 {
 
   template<class T, usize N, class Env>
   template<usize shift_amount>
-  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::shl() {
+  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::shl() const {
     if constexpr (is_128_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
         constexpr u8 mask = static_cast<u8>(0xFF << shift_amount);
@@ -308,7 +308,7 @@ namespace lps::avx2 {
 
   template<class T, usize N, class Env>
   template<usize shift_amount>
-  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::shr() {
+  LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::shr() const {
     if constexpr (is_128_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
         constexpr u8 mask = static_cast<u8>(0xFF >> shift_amount);

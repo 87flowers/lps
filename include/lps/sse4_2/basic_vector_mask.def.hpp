@@ -27,15 +27,15 @@ namespace lps::sse4_2 {
 
     template<class V>
       requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-    constexpr V mask(const V& v1);
+    constexpr V mask(const V& v1) const;
 
     template<class V>
       requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-    constexpr V select(const V& v0, const V& v1);
+    constexpr V select(const V& v0, const V& v1) const;
 
     template<class V>
       requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
-    constexpr V compress(const V& v);
+    constexpr V compress(const V& v) const;
 
     constexpr basic_vector_mask andnot(const basic_vector_mask& second) const;
 
