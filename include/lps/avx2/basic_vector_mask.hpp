@@ -89,9 +89,9 @@ namespace lps::avx2 {
       } else if constexpr (sizeof(T) == sizeof(u16)) {
         return static_cast<usize>(std::popcount(static_cast<u16>(_mm_movemask_epi8(raw.raw) & 0xAAAA)));
       } else if constexpr (sizeof(T) == sizeof(u32)) {
-        return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_ps((__m128)raw.raw))));
+        return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_ps((__m128d)raw.raw))));
       } else if constexpr (sizeof(T) == sizeof(u64)) {
-        return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_pd((__m128)raw.raw))));
+        return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_pd((__m128d)raw.raw))));
       } else {
         static_assert(false);
       }
@@ -123,9 +123,9 @@ namespace lps::avx2 {
       } else if constexpr (sizeof(T) == sizeof(u16)) {
         return static_cast<u8>(_pext_u32(static_cast<u32>(_mm_movemask_epi8(raw.raw)), 0xAAAA));
       } else if constexpr (sizeof(T) == sizeof(u32)) {
-        return static_cast<u8>(_mm_movemask_ps((__m128)raw.raw));
+        return static_cast<u8>(_mm_movemask_ps((__m128d)raw.raw));
       } else if constexpr (sizeof(T) == sizeof(u64)) {
-        return static_cast<u8>(_mm_movemask_pd((__m128)raw.raw));
+        return static_cast<u8>(_mm_movemask_pd((__m128d)raw.raw));
       } else {
         static_assert(false);
       }
