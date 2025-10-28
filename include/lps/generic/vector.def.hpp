@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lps/detail/bit_mask_base.hpp"
 #include "lps/generic/generic.fwd.hpp"
 #include "lps/stdint.hpp"
 
@@ -11,7 +12,11 @@ namespace lps::generic {
   struct vector {
     using element_type = T;
     static constexpr usize size = N;
+
+    using vmask_type = vector_mask<T, N>;
     using mask_type = vector_mask<T, N>;
+
+    using bmask_type = typename detail::bit_mask_base_t<N>;
     using half_vector = vector<T, N / 2>;
     using dup_vector = vector<T, N * 2>;
 
@@ -64,27 +69,28 @@ namespace lps::generic {
     constexpr vector zip_low_128lanes(const vector& second) const;
     constexpr vector zip_high_128lanes(const vector& second) const;
 
-    constexpr mask_type test_vm(const vector& second) const;
+    constexpr vmask_type test_vm(const vector& second) const;
+    constexpr bmask_type test_bm(const vector& second) const;
     constexpr mask_type test(const vector& second) const;
 
-    constexpr mask_type eq_vm(const vector& second) const;
+    constexpr vmask_type eq_vm(const vector& second) const;
     constexpr mask_type eq(const vector& second) const;
 
-    constexpr mask_type neq_vm(const vector& second) const;
+    constexpr vmask_type neq_vm(const vector& second) const;
     constexpr mask_type neq(const vector& second) const;
 
-    constexpr mask_type gt_vm(const vector& second) const;
+    constexpr vmask_type gt_vm(const vector& second) const;
     constexpr mask_type gt(const vector& second) const;
 
-    constexpr mask_type nonzeros_vm() const;
+    constexpr vmask_type nonzeros_vm() const;
     constexpr mask_type nonzeros() const;
     constexpr usize nonzeros_count() const;
 
-    constexpr mask_type zeros_vm() const;
+    constexpr vmask_type zeros_vm() const;
     constexpr mask_type zeros() const;
     constexpr usize zeros_count() const;
 
-    constexpr mask_type msb_vm() const;
+    constexpr vmask_type msb_vm() const;
     constexpr mask_type msb() const;
 
     [[nodiscard]] std::array<T, N> to_array() const;

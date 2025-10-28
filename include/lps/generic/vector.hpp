@@ -222,7 +222,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::test_vm(const vector& second) const {
+  constexpr vector<T, N>::vmask_type vector<T, N>::test_vm(const vector& second) const {
     vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] & second.raw[i]);
@@ -231,12 +231,17 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
+  constexpr vector<T, N>::bmask_type vector<T, N>::test_bm(const vector& second) const {
+    return test_vm(second).to_bits();
+  }
+
+  template<class T, usize N>
   constexpr vector<T, N>::mask_type vector<T, N>::test(const vector& second) const {
     return test_vm(second);
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::eq_vm(const vector& second) const {
+  constexpr vector<T, N>::vmask_type vector<T, N>::eq_vm(const vector& second) const {
     vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] == second.raw[i]);
@@ -250,7 +255,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::neq_vm(const vector& second) const {
+  constexpr vector<T, N>::vmask_type vector<T, N>::neq_vm(const vector& second) const {
     vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] != second.raw[i]);
@@ -264,7 +269,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::gt_vm(const vector<T, N>& second) const {
+  constexpr vector<T, N>::vmask_type vector<T, N>::gt_vm(const vector& second) const {
     vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] > second.raw[i]);
@@ -273,12 +278,12 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::gt(const vector<T, N>& other) const {
+  constexpr vector<T, N>::mask_type vector<T, N>::gt(const vector& other) const {
     return gt_vm(other);
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::nonzeros_vm() const {
+  constexpr vector<T, N>::vmask_type vector<T, N>::nonzeros_vm() const {
     vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] != 0);
@@ -301,7 +306,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::zeros_vm() const {
+  constexpr vector<T, N>::vmask_type vector<T, N>::zeros_vm() const {
     vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, raw[i] == 0);
@@ -324,7 +329,7 @@ namespace lps::generic {
   }
 
   template<class T, usize N>
-  constexpr vector<T, N>::mask_type vector<T, N>::msb_vm() const {
+  constexpr vector<T, N>::vmask_type vector<T, N>::msb_vm() const {
     vector<T, N>::mask_type m = vector<T, N>::mask_type::zero();
     for (usize i = 0; i < N; i++) {
       m.set(i, detail::msb(raw[i]));

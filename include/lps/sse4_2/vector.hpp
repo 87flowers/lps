@@ -273,8 +273,13 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::test_vm(const vector& second) const {
+  constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::test_vm(const vector& second) const {
     return zero().neq_vm(*this & second);
+  }
+
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::test_bm(const vector& second) const {
+    return ~zero().eq_vm(*this & second).to_bits();
   }
 
   template<class T, usize N, class Env>
@@ -283,7 +288,7 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::eq_vm(const vector& second) const {
+  constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::eq_vm(const vector& second) const {
     if constexpr (sizeof(T) == sizeof(u8)) {
       return mask_type { _mm_cmpeq_epi8(raw, second.raw) };
     } else if constexpr (sizeof(T) == sizeof(u16)) {
@@ -303,7 +308,7 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::neq_vm(const vector& second) const {
+  constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::neq_vm(const vector& second) const {
     return ~eq_vm(second);
   }
 
@@ -313,7 +318,7 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt_vm(const vector<T, N, Env>& second) const {
+  constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::gt_vm(const vector& second) const {
     if constexpr (std::is_same_v<T, i8>) {
       return mask_type { _mm_cmpgt_epi8(raw, second.raw) };
     } else if constexpr (std::is_same_v<T, i16>) {
@@ -336,12 +341,12 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt(const vector<T, N, Env>& other) const {
+  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt(const vector& other) const {
     return gt_vm(other);
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::nonzeros_vm() const {
+  constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::nonzeros_vm() const {
     return neq_vm(zero());
   }
 
@@ -356,7 +361,7 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::zeros_vm() const {
+  constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::zeros_vm() const {
     return eq_vm(zero());
   }
 
@@ -371,7 +376,7 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
-  constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::msb_vm() const {
+  constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::msb_vm() const {
     constexpr T msb_bit = static_cast<T>(1) << (sizeof(T) * CHAR_BIT - 1);
     return test_vm(vector::splat(msb_bit));
   }
