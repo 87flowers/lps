@@ -8,6 +8,7 @@
 
 #include <array>
 #include <immintrin.h>
+#include <bit>
 
 namespace lps::avx2 {
 
@@ -186,3 +187,4 @@ namespace lps::avx2 {
   }
 
 }  // namespace lps::avx2
+
