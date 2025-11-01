@@ -9,6 +9,7 @@
 #include <array>
 #include <immintrin.h>
 #include <bit>
+#include <cstring>
 
 namespace lps::avx2 {
 
@@ -69,8 +70,27 @@ namespace lps::avx2 {
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
   LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) const {
-    return std::bit_cast<V>(
-      std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
+    using elem_t = typename V::element_type;
+
+    auto src_array = v.to_array();
+    auto mask_bits = this->to_bits();
+
+    std::array<elem_t, N> result;
+    size_t write_idx = 0;
+
+    // Bit scan loop
+    while (mask_bits) {
+      size_t bit_pos = std::countr_zero(mask_bits);
+      result[write_idx++] = src_array[bit_pos];
+      mask_bits &= mask_bits - 1;
+    }
+
+    // Zero tail
+    for (size_t i = write_idx; i < N; ++i) {
+      result[i] = elem_t{};
+    }
+
+    return V{result};
   }
 
   template<class T, usize N, class Env>
@@ -187,4 +207,3 @@ namespace lps::avx2 {
   }
 
 }  // namespace lps::avx2
-
