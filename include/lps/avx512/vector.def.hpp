@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lps/avx2/avx2.fwd.hpp"
+#include "lps/avx512/avx512.fwd.hpp"
 #include "lps/detail/bit_mask_base.hpp"
 #include "lps/stdint.hpp"
 
@@ -8,14 +8,15 @@
 #include <immintrin.h>
 #include <tuple>
 
-namespace lps::avx2 {
+namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   struct vector {
     static constexpr bool is_128_bit = N * sizeof(T) == 16 * sizeof(u8);
     static constexpr bool is_256_bit = N * sizeof(T) == 32 * sizeof(u8);
-    static_assert(is_128_bit || is_256_bit);
-    using raw_type = std::conditional_t<is_128_bit, __m128i, __m256i>;
+    static constexpr bool is_512_bit = N * sizeof(T) == 64 * sizeof(u8);
+    static_assert(is_128_bit || is_256_bit || is_512_bit);
+    using raw_type = std::conditional_t<is_128_bit, __m128i, std::conditional_t<is_256_bit, __m256i, __m512i>>;
 
     using element_type = T;
     static constexpr usize size = N;
@@ -35,7 +36,7 @@ namespace lps::avx2 {
     constexpr T read(usize i) const;
 
     template<class U>
-    constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> convert() const;
+    constexpr typename Env::template vector<U, std::max(N, 16 / sizeof(U))> convert() const;
 
     template<class V, usize extract_index>
     constexpr V extract_aligned() const;
@@ -150,4 +151,4 @@ namespace lps::avx2 {
   template<class T, usize N, class Env>
   constexpr vector<T, N, Env>& operator>>=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-}  // namespace lps::avx2
+}  // namespace lps::avx512

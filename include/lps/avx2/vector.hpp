@@ -591,7 +591,7 @@ namespace lps::avx2 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE std::array<T, N> vector<T, N, Env>::to_array() const {
+  LPS_INLINE constexpr std::array<T, N> vector<T, N, Env>::to_array() const {
     return std::bit_cast<std::array<T, N>>(raw);
   }
 

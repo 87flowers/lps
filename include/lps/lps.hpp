@@ -2,7 +2,17 @@
 
 #include "lps/stdint.hpp"
 
-#if defined(__AVX2__) && __AVX2__
+#if defined(__AVX512F__) && __AVX512F__
+
+#define LPS_AVX512 1
+
+#include "lps/avx512/avx512.hpp"
+
+namespace lps {
+  using environment = avx512::environment;
+}  // namespace lps
+
+#elif defined(__AVX2__) && __AVX2__
 
 #define LPS_AVX2 1
 
