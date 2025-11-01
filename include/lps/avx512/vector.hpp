@@ -15,6 +15,11 @@
 namespace lps::avx512 {
 
   template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::vector(raw_type src) :
+      raw(src) {
+  }
+
+  template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::vector(const std::array<T, N>& src) :
       raw(std::bit_cast<raw_type>(src)) {
   }
@@ -110,43 +115,211 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src) const {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src)));
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return { _mm_maskz_permutexvar_epi8(_knot_mask16(_mm_movepi8_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return { _mm_maskz_permutexvar_epi16(_knot_mask8(_mm_movepi16_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return { _mm_maskz_permutexvar_epi32(_knot_mask8(_mm_movepi32_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return { _mm_maskz_permutexvar_epi64(_knot_mask8(_mm_movepi64_mask(raw)), raw, src.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return { _mm256_maskz_permutexvar_epi8(_knot_mask32(_mm256_movepi8_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return { _mm256_maskz_permutexvar_epi16(_knot_mask16(_mm256_movepi16_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return { _mm256_maskz_permutexvar_epi32(_knot_mask8(_mm256_movepi32_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return { _mm256_maskz_permutexvar_epi64(_knot_mask8(_mm256_movepi64_mask(raw)), raw, src.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return { _mm512_maskz_permutexvar_epi8(_knot_mask64(_mm512_movepi8_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return { _mm512_maskz_permutexvar_epi16(_knot_mask32(_mm512_movepi16_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return { _mm512_maskz_permutexvar_epi32(_knot_mask16(_mm512_movepi32_mask(raw)), raw, src.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return { _mm512_maskz_permutexvar_epi64(_knot_mask8(_mm512_movepi64_mask(raw)), raw, src.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const vector<T, N, Env>& src0, const vector<T, N, Env>& src1) const {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, N>>(src0), std::bit_cast<generic::vector<T, N>>(src1)));
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return { _mm_maskz_permutex2var_epi8(_knot_mask16(_mm_movepi8_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return { _mm_maskz_permutex2var_epi16(_knot_mask8(_mm_movepi16_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return { _mm_maskz_permutex2var_epi32(_knot_mask8(_mm_movepi32_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return { _mm_maskz_permutex2var_epi64(_knot_mask8(_mm_movepi64_mask(raw)), raw, src0.raw, src1.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return { _mm256_maskz_permutex2var_epi8(_knot_mask32(_mm256_movepi8_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return { _mm256_maskz_permutex2var_epi16(_knot_mask16(_mm256_movepi16_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return { _mm256_maskz_permutex2var_epi32(_knot_mask8(_mm256_movepi32_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return { _mm256_maskz_permutex2var_epi64(_knot_mask8(_mm256_movepi64_mask(raw)), raw, src0.raw, src1.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return { _mm512_maskz_permutex2var_epi8(_knot_mask64(_mm512_movepi8_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return { _mm512_maskz_permutex2var_epi16(_knot_mask32(_mm512_movepi16_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return { _mm512_maskz_permutex2var_epi32(_knot_mask16(_mm512_movepi32_mask(raw)), raw, src0.raw, src1.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return { _mm512_maskz_permutex2var_epi64(_knot_mask8(_mm512_movepi64_mask(raw)), raw, src0.raw, src1.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::swizzle(const mask_type& src) const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector_mask<T, N>>(src)));
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::swizzle(const vmask_type& src) const {
+    return mask_type { swizzle(src.raw).raw };
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::swizzle(const Env::template vector<T, 16 / sizeof(T)>& src) const
     requires(16 / sizeof(T) != N)
   {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).swizzle(std::bit_cast<generic::vector<T, 16 / sizeof(T)>>(src)));
+    if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm256_shuffle_epi8(_mm256_broadcastsi128_si256(src.raw), raw) };
+      } else {
+        return swizzle(vector<T, N, Env> { _mm256_broadcastsi128_si256(src.raw) });
+      }
+    } else if constexpr (is_512_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm512_shuffle_epi8(_mm512_broadcast_i32x4(src.raw), raw) };
+      } else {
+        return swizzle(vector<T, N, Env> { _mm512_broadcast_i32x4(src.raw) });
+      }
+    } else {
+      static_assert(false);
+    }
   }
 
   template<class T, usize N, class Env>
   template<usize shift_amount>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::shl() const {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shl<shift_amount>());
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        constexpr u8 mask = static_cast<u8>(0xFF << shift_amount);
+        return vector { _mm_slli_epi16(raw, shift_amount) } & vector::splat(mask);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm_slli_epi16(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm_slli_epi32(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm_slli_epi64(raw, shift_amount) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        constexpr u8 mask = static_cast<u8>(0xFF << shift_amount);
+        return vector { _mm256_slli_epi16(raw, shift_amount) } & vector::splat(mask);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm256_slli_epi16(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm256_slli_epi32(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm256_slli_epi64(raw, shift_amount) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        constexpr u8 mask = static_cast<u8>(0xFF << shift_amount);
+        return vector { _mm512_slli_epi16(raw, shift_amount) } & vector::splat(mask);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm512_slli_epi16(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm512_slli_epi32(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm512_slli_epi64(raw, shift_amount) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
   template<usize shift_amount>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::shr() const {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).template shr<shift_amount>());
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        constexpr u8 mask = static_cast<u8>(0xFF >> shift_amount);
+        return vector { _mm_srli_epi16(raw, shift_amount) } & vector::splat(mask);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm_srli_epi16(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm_srli_epi32(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm_srli_epi64(raw, shift_amount) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        constexpr u8 mask = static_cast<u8>(0xFF >> shift_amount);
+        return vector { _mm256_srli_epi16(raw, shift_amount) } & vector::splat(mask);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm256_srli_epi16(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm256_srli_epi32(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm256_srli_epi64(raw, shift_amount) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        constexpr u8 mask = static_cast<u8>(0xFF >> shift_amount);
+        return vector { _mm512_srli_epi16(raw, shift_amount) } & vector::splat(mask);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm512_srli_epi16(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm512_srli_epi32(raw, shift_amount) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm512_srli_epi64(raw, shift_amount) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::andnot(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(*this).andnot(std::bit_cast<generic::vector<T, N>>(second)));
+    if constexpr (is_128_bit) {
+      return vector { _mm_andnot_si128(second.raw, raw) };
+    } else if constexpr (is_256_bit) {
+      return vector { _mm256_andnot_si256(second.raw, raw) };
+    } else {
+      return vector { _mm512_andnot_si512(second.raw, raw) };
+    }
   }
 
   template<class T, usize N, class Env>
@@ -176,68 +349,174 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::zip_low_128lanes(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).zip_low_128lanes(std::bit_cast<generic::vector<T, N>>(second)));
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm_unpacklo_epi8(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm_unpacklo_epi16(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm_unpacklo_epi32(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm_unpacklo_epi64(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm256_unpacklo_epi8(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm256_unpacklo_epi16(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm256_unpacklo_epi32(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm256_unpacklo_epi64(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm512_unpacklo_epi8(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm512_unpacklo_epi16(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm512_unpacklo_epi32(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm512_unpacklo_epi64(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> vector<T, N, Env>::zip_high_128lanes(const vector<T, N, Env>& second) const {
-    return std::bit_cast<vector<T, N, Env>>(
-      std::bit_cast<generic::vector<T, N>>(*this).zip_high_128lanes(std::bit_cast<generic::vector<T, N>>(second)));
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm_unpackhi_epi8(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm_unpackhi_epi16(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm_unpackhi_epi32(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm_unpackhi_epi64(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm256_unpackhi_epi8(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm256_unpackhi_epi16(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm256_unpackhi_epi32(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm256_unpackhi_epi64(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector { _mm512_unpackhi_epi8(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector { _mm512_unpackhi_epi16(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector { _mm512_unpackhi_epi32(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector { _mm512_unpackhi_epi64(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::test_vm(const vector& second) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::test_vm(const vector& second) const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).test_vm(std::bit_cast<generic::vector<T, N>>(second)));
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::test_bm(const vector& second) const {
-    return test_vm(second).to_bits();
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return _mm_test_epi8_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return _mm_test_epi16_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return _mm_test_epi32_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return _mm_test_epi64_mask(raw, second.raw);
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return _mm256_test_epi8_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return _mm256_test_epi16_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return _mm256_test_epi32_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return _mm256_test_epi64_mask(raw, second.raw);
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return _mm512_test_epi8_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return _mm512_test_epi16_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return _mm512_test_epi32_mask(raw, second.raw);
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return _mm512_test_epi64_mask(raw, second.raw);
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::test(const vector& second) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::test(const vector& second) const {
     return test_vm(second);
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::eq_vm(const vector& second) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::eq_vm(const vector& second) const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).eq_vm(std::bit_cast<generic::vector<T, N>>(second)));
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::eq(const vector& second) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::eq(const vector& second) const {
     return eq_vm(second);
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::neq_vm(const vector& second) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::neq_vm(const vector& second) const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).neq_vm(std::bit_cast<generic::vector<T, N>>(second)));
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::neq(const vector& second) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::neq(const vector& second) const {
     return neq_vm(second);
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt_vm(const vector& second) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::gt_vm(const vector& second) const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).gt_vm(std::bit_cast<generic::vector<T, N>>(second)));
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt(const vector& other) const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::gt(const vector& other) const {
     return gt_vm(other);
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::nonzeros_vm() const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::nonzeros_vm() const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).nonzeros_vm());
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::nonzeros() const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::nonzeros() const {
     return nonzeros_vm();
   }
 
@@ -247,12 +526,12 @@ namespace lps::avx512 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::zeros_vm() const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::zeros_vm() const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).zeros_vm());
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::zeros() const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::zeros() const {
     return zeros_vm();
   }
 
@@ -262,12 +541,12 @@ namespace lps::avx512 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::msb_vm() const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::msb_vm() const {
     return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).msb_vm());
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::msb() const {
+  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::msb() const {
     return msb_vm();
   }
 
@@ -292,12 +571,18 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> operator~(const vector<T, N, Env>& first) {
-    return std::bit_cast<vector<T, N, Env>>(~std::bit_cast<generic::vector<T, N>>(first));
+    return first ^ vector<T, N, Env>::splat(static_cast<T>(~static_cast<T>(0)));
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> operator&(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) & std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (vector<T, N, Env>::is_128_bit) {
+      return vector<T, N, Env> { _mm_and_si128(first.raw, second.raw) };
+    } else if constexpr (vector<T, N, Env>::is_256_bit) {
+      return vector<T, N, Env> { _mm256_and_si256(first.raw, second.raw) };
+    } else {
+      return vector<T, N, Env> { _mm512_and_si512(first.raw, second.raw) };
+    }
   }
 
   template<class T, usize N, class Env>
@@ -307,7 +592,13 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> operator|(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) | std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (vector<T, N, Env>::is_128_bit) {
+      return vector<T, N, Env> { _mm_or_si128(first.raw, second.raw) };
+    } else if constexpr (vector<T, N, Env>::is_256_bit) {
+      return vector<T, N, Env> { _mm256_or_si256(first.raw, second.raw) };
+    } else {
+      return vector<T, N, Env> { _mm512_or_si512(first.raw, second.raw) };
+    }
   }
 
   template<class T, usize N, class Env>
@@ -317,7 +608,13 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> operator^(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) ^ std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (vector<T, N, Env>::is_128_bit) {
+      return vector<T, N, Env> { _mm_xor_si128(first.raw, second.raw) };
+    } else if constexpr (vector<T, N, Env>::is_256_bit) {
+      return vector<T, N, Env> { _mm256_xor_si256(first.raw, second.raw) };
+    } else {
+      return vector<T, N, Env> { _mm512_xor_si512(first.raw, second.raw) };
+    }
   }
 
   template<class T, usize N, class Env>
@@ -327,7 +624,43 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> operator+(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) + std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (vector<T, N, Env>::is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector<T, N, Env> { _mm_add_epi8(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm_add_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm_add_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm_add_epi64(first.raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (vector<T, N, Env>::is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector<T, N, Env> { _mm256_add_epi8(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm256_add_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm256_add_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm256_add_epi64(first.raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector<T, N, Env> { _mm512_add_epi8(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm512_add_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm512_add_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm512_add_epi64(first.raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
@@ -337,7 +670,43 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> operator-(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) - std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (vector<T, N, Env>::is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector<T, N, Env> { _mm_sub_epi8(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm_sub_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm_sub_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm_sub_epi64(first.raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (vector<T, N, Env>::is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector<T, N, Env> { _mm256_sub_epi8(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm256_sub_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm256_sub_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm256_sub_epi64(first.raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return vector<T, N, Env> { _mm512_sub_epi8(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm512_sub_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm512_sub_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm512_sub_epi64(first.raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
   }
 
   template<class T, usize N, class Env>
@@ -347,7 +716,37 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env> operator*(const vector<T, N, Env>& first, const vector<T, N, Env>& second) {
-    return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) * std::bit_cast<generic::vector<T, N>>(second));
+    if constexpr (vector<T, N, Env>::is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm_mullo_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm_mullo_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm_mullo_epi64(first.raw, second.raw) };
+      } else {
+        return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) * std::bit_cast<generic::vector<T, N>>(second));
+      }
+    } else if constexpr (vector<T, N, Env>::is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm256_mullo_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm256_mullo_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm256_mullo_epi64(first.raw, second.raw) };
+      } else {
+        return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) * std::bit_cast<generic::vector<T, N>>(second));
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u16)) {
+        return vector<T, N, Env> { _mm512_mullo_epi16(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return vector<T, N, Env> { _mm512_mullo_epi32(first.raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return vector<T, N, Env> { _mm512_mullo_epi64(first.raw, second.raw) };
+      } else {
+        return std::bit_cast<vector<T, N, Env>>(std::bit_cast<generic::vector<T, N>>(first) * std::bit_cast<generic::vector<T, N>>(second));
+      }
+    }
   }
 
   template<class T, usize N, class Env>
@@ -362,6 +761,7 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>& operator<<=(vector<T, N, Env>& first, const vector<T, N, Env>& second) {
+    // TODO: AVX512 variable shifts
     return first = first << second;
   }
 
@@ -372,6 +772,7 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>& operator>>=(vector<T, N, Env>& first, const vector<T, N, Env>& second) {
+    // TODO: AVX512 variable shifts
     return first = first >> second;
   }
 

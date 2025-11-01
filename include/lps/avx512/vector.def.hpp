@@ -26,7 +26,7 @@ namespace lps::avx512 {
     using mask_type = typename Env::template vector_mask<T, N>;
 
     constexpr vector() = default;
-    explicit constexpr vector(raw_type src);
+    constexpr vector(raw_type src);
     explicit constexpr vector(const std::array<T, N>& src);
 
     static constexpr vector zero();
