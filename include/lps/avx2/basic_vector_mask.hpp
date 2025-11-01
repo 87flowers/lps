@@ -70,92 +70,30 @@ namespace lps::avx2 {
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
   LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) const {
-    #if defined(__BMI2__) && defined(__AVX2__)
-        using elem_t = typename V::element_type;
-        constexpr size_t elem_bytes = sizeof(elem_t);
+    #if defined(__BMI__) || defined(__BMI2__)
+      using elem_t = typename V::element_type;
 
-        if constexpr (elem_bytes == 1) {
-          return std::bit_cast<V>(
-            std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(
-              std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
-        } else {
-          constexpr unsigned elems_per_128 = 16u / (unsigned)elem_bytes;
-          static_assert(elems_per_128 >= 1 && elems_per_128 <= 16,
-                        "unsupported element size for this compress implementation");
+      auto src_array = v.to_array();
+      auto mask_bits = this->to_bits();
 
-          constexpr uint32_t elem_msb_mask = []() {
-            uint32_t m = 0;
-            for (unsigned i = 0; i < elems_per_128; ++i) {
-              unsigned bitpos = i * (unsigned)elem_bytes + (unsigned)elem_bytes - 1;
-              m |= (1u << bitpos);
-            }
-            return m;
-          }();
+      std::array<elem_t, N> result;
+      size_t write_idx = 0;
 
-          if constexpr (V::is_128_bit) {
-            __m128i maskv = this->raw.raw;
-            __m128i srcv  = v.raw;
+      while (mask_bits) {
+        size_t bit_pos = std::countr_zero(mask_bits);
+        result[write_idx++] = src_array[bit_pos];
+        mask_bits &= mask_bits - 1;
+      }
 
-            int mov = _mm_movemask_epi8(maskv);
-            uint32_t elem_mask = _pext_u32((uint32_t)mov, elem_msb_mask);
+      for (size_t i = write_idx; i < N; ++i) {
+        result[i] = elem_t{};
+      }
 
-            alignas(16) uint8_t src_bytes[16];
-            alignas(16) uint8_t out_bytes[16];
-            _mm_store_si128((__m128i*)src_bytes, srcv);
-
-            size_t write = 0;
-            for (unsigned e = 0; e < (unsigned)N; ++e) {
-              if ((elem_mask >> e) & 1u) {
-                const uint8_t* srcp = src_bytes + e * elem_bytes;
-                std::memcpy(out_bytes + write, srcp, elem_bytes);
-                write += elem_bytes;
-              }
-            }
-            if (write < sizeof(out_bytes)) {
-              std::memset(out_bytes + write, 0, sizeof(out_bytes) - write);
-            }
-
-            __m128i res = _mm_load_si128((__m128i*)out_bytes);
-            return V{res};
-
-          } else {
-            __m256i maskv256 = this->raw.raw;
-            __m256i srcv256  = v.raw;
-
-            __m128i mask_lo = _mm256_castsi256_si128(maskv256);
-            __m128i mask_hi = _mm256_extracti128_si256(maskv256, 1);
-            int mov_lo = _mm_movemask_epi8(mask_lo);
-            int mov_hi = _mm_movemask_epi8(mask_hi);
-
-            uint32_t elem_mask_lo = _pext_u32((uint32_t)mov_lo, elem_msb_mask);
-            uint32_t elem_mask_hi = _pext_u32((uint32_t)mov_hi, elem_msb_mask);
-
-            uint64_t elem_mask = uint64_t(elem_mask_lo) | (uint64_t(elem_mask_hi) << elems_per_128);
-
-            alignas(32) uint8_t src_bytes[32];
-            alignas(32) uint8_t out_bytes[32];
-            _mm256_store_si256((__m256i*)src_bytes, srcv256);
-
-            size_t write = 0;
-            for (unsigned e = 0; e < (unsigned)N; ++e) {
-              if ((elem_mask >> e) & 1u) {
-                const uint8_t* srcp = src_bytes + e * elem_bytes;
-                std::memcpy(out_bytes + write, srcp, elem_bytes);
-                write += elem_bytes;
-              }
-            }
-            if (write < sizeof(out_bytes)) {
-              std::memset(out_bytes + write, 0, sizeof(out_bytes) - write);
-            }
-
-            __m256i res = _mm256_load_si256((__m256i*)out_bytes);
-            return V{res};
-          }
-        }
+      return V{result};
     #else
-        return std::bit_cast<V>(
-          std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(
-            std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
+      return std::bit_cast<V>(
+        std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(
+          std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
     #endif
   }
 
