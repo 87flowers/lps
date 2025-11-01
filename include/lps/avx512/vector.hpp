@@ -98,7 +98,131 @@ namespace lps::avx512 {
   template<class T, usize N, class Env>
   template<class U>
   LPS_INLINE constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() const {
-    // TODO
+    // TOOD: Reimplement for AVX512
+    using Result = Env::template vector<U, std::max(N, 16 / sizeof(U))>;
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        if constexpr (sizeof(U) == sizeof(u8)) {
+          return *this;
+        } else if constexpr (std::is_same_v<T, i8> && std::is_same_v<U, i16>) {
+          return Result { _mm_cvtepi8_epi16(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u16)) {
+          return Result { _mm_cvtepu8_epi16(raw) };
+        } else if constexpr (std::is_same_v<T, i8> && std::is_same_v<U, i32>) {
+          return Result { _mm_cvtepi8_epi32(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u32)) {
+          return Result { _mm_cvtepu8_epi32(raw) };
+        } else if constexpr (std::is_same_v<T, i8> && std::is_same_v<U, i64>) {
+          return Result { _mm_cvtepi8_epi64(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u64)) {
+          return Result { _mm_cvtepu8_epi64(raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        if constexpr (sizeof(U) == sizeof(u8)) {
+          // TODO: Optimize
+          return Result { _mm_packus_epi16(_mm_and_si128(raw, _mm_set1_epi16(0x00FF)), _mm_setzero_si128()) };
+        } else if constexpr (sizeof(U) == sizeof(u16)) {
+          return *this;
+        } else if constexpr (std::is_same_v<T, i16> && std::is_same_v<U, i32>) {
+          return Result { _mm_cvtepi16_epi32(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u32)) {
+          return Result { _mm_cvtepu16_epi32(raw) };
+        } else if constexpr (std::is_same_v<T, i16> && std::is_same_v<U, i64>) {
+          return Result { _mm_cvtepi16_epi64(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u64)) {
+          return Result { _mm_cvtepu16_epi64(raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        if constexpr (sizeof(U) == sizeof(u8)) {
+          // TODO: Optimize
+          return Result { _mm_packus_epi16(_mm_packus_epi32(_mm_and_si128(raw, _mm_set1_epi32(0x00FF)), _mm_setzero_si128()), _mm_setzero_si128()) };
+        } else if constexpr (sizeof(U) == sizeof(u16)) {
+          // TODO: Optimize
+          return Result { _mm_packus_epi32(_mm_and_si128(raw, _mm_set1_epi32(0x0000FFFF)), _mm_setzero_si128()) };
+        } else if constexpr (sizeof(U) == sizeof(u32)) {
+          return *this;
+        } else if constexpr (std::is_same_v<T, i32> && std::is_same_v<U, i64>) {
+          return Result { _mm_cvtepi32_epi64(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u64)) {
+          return Result { _mm_cvtepu32_epi64(raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        if constexpr (sizeof(U) == sizeof(u64)) {
+          return *this;
+        }
+        // TODO: Implement rest
+      } else {
+        static_assert(false);
+      }
+    } else if (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        if constexpr (sizeof(U) == sizeof(u8)) {
+          return *this;
+        } else if constexpr (std::is_same_v<T, i8> && std::is_same_v<U, i16>) {
+          return Result { _mm256_cvtepi8_epi16(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u16)) {
+          return Result { _mm256_cvtepu8_epi16(raw) };
+        } else if constexpr (std::is_same_v<T, i8> && std::is_same_v<U, i32>) {
+          return Result { _mm256_cvtepi8_epi32(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u32)) {
+          return Result { _mm256_cvtepu8_epi32(raw) };
+        } else if constexpr (std::is_same_v<T, i8> && std::is_same_v<U, i64>) {
+          return Result { _mm256_cvtepi8_epi64(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u64)) {
+          return Result { _mm256_cvtepu8_epi64(raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        if constexpr (sizeof(U) == sizeof(u8)) {
+          // TODO: Optimize
+          return Result { _mm256_packus_epi16(_mm256_and_si256(raw, _mm256_set1_epi16(0x00FF)), _mm256_setzero_si256()) };
+        } else if constexpr (sizeof(U) == sizeof(u16)) {
+          return *this;
+        } else if constexpr (std::is_same_v<T, i16> && std::is_same_v<U, i32>) {
+          return Result { _mm256_cvtepi16_epi32(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u32)) {
+          return Result { _mm256_cvtepu16_epi32(raw) };
+        } else if constexpr (std::is_same_v<T, i16> && std::is_same_v<U, i64>) {
+          return Result { _mm256_cvtepi16_epi64(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u64)) {
+          return Result { _mm256_cvtepu16_epi64(raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        if constexpr (sizeof(U) == sizeof(u8)) {
+          // TODO: Optimize
+          return Result { _mm256_packus_epi16(_mm256_packus_epi32(_mm256_and_si256(raw, _mm256_set1_epi32(0x00FF)), _mm256_setzero_si256()),
+                                              _mm256_setzero_si256()) };
+        } else if constexpr (sizeof(U) == sizeof(u16)) {
+          // TODO: Optimize
+          return Result { _mm256_packus_epi32(_mm256_and_si256(raw, _mm256_set1_epi32(0x0000FFFF)), _mm256_setzero_si256()) };
+        } else if constexpr (sizeof(U) == sizeof(u32)) {
+          return *this;
+        } else if constexpr (std::is_same_v<T, i32> && std::is_same_v<U, i64>) {
+          return Result { _mm256_cvtepi32_epi64(raw) };
+        } else if constexpr (sizeof(U) == sizeof(u64)) {
+          return Result { _mm256_cvtepu32_epi64(raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        if constexpr (sizeof(U) == sizeof(u64)) {
+          return *this;
+        }
+        // TODO: Implement rest
+      } else {
+        static_assert(false);
+      }
+    }
+
     std::array<U, std::max(N, 16 / sizeof(U))> result;
     for (usize i = 0; i < N; i++) {
       result[i] = static_cast<U>(read(i));
@@ -335,6 +459,19 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr T vector<T, N, Env>::reduce_or() const {
+    if constexpr (sizeof(T) == sizeof(u64)) {
+      __m128i r;
+      if constexpr (is_128_bit) {
+        r = raw;
+      } else if constexpr (is_256_bit) {
+        r = _mm_or_si128(_mm256_extracti128_si256(raw, 1), _mm256_castsi256_si128(raw));
+      } else {
+        __m256i r2 = _mm256_or_si256(_mm512_extracti64x4_epi64(raw, 1), _mm512_castsi512_si256(raw));
+        r = _mm_or_si128(_mm256_extracti128_si256(r2, 1), _mm256_castsi256_si128(r2));
+      }
+      r = _mm_or_si128(r, _mm_unpackhi_epi64(r, r));
+      return static_cast<u64>(_mm_extract_epi64(r, 0));
+    }
     return std::bit_cast<generic::vector<T, N>>(*this).reduce_or();
   }
 
