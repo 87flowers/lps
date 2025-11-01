@@ -9,6 +9,7 @@
 #include <array>
 #include <immintrin.h>
 #include <bit>
+#include <cstring>
 
 namespace lps::avx2 {
 
@@ -69,89 +70,93 @@ namespace lps::avx2 {
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
   LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::compress(const V& v) const {
-  #if defined(__BMI2__) && defined(__AVX2__)
-    using elem_t = typename V::element_type;
-    constexpr size_t elem_bytes = sizeof(elem_t);
+    #if defined(__BMI2__) && defined(__AVX2__)
+        using elem_t = typename V::element_type;
+        constexpr size_t elem_bytes = sizeof(elem_t);
 
-    if constexpr (elem_bytes == 1) {
-      return std::bit_cast<V>(
-        std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(
-          std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
-    } else {
-      constexpr unsigned elems_per_128 = 16u / (unsigned)elem_bytes;
-      static_assert(elems_per_128 >= 1 && elems_per_128 <= 16,
-                    "unsupported element size for this compress implementation");
+        if constexpr (elem_bytes == 1) {
+          return std::bit_cast<V>(
+            std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(
+              std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
+        } else {
+          constexpr unsigned elems_per_128 = 16u / (unsigned)elem_bytes;
+          static_assert(elems_per_128 >= 1 && elems_per_128 <= 16,
+                        "unsupported element size for this compress implementation");
 
-      constexpr uint32_t make_elem_msb_mask() {
-        uint32_t m = 0;
-        for (unsigned i = 0; i < elems_per_128; ++i) {
-          unsigned bitpos = i * (unsigned)elem_bytes + (unsigned)elem_bytes - 1;
-          m |= (1u << bitpos);
-        }
-        return m;
-      }
-      constexpr uint32_t elem_msb_mask = make_elem_msb_mask();
+          constexpr uint32_t elem_msb_mask = []() {
+            uint32_t m = 0;
+            for (unsigned i = 0; i < elems_per_128; ++i) {
+              unsigned bitpos = i * (unsigned)elem_bytes + (unsigned)elem_bytes - 1;
+              m |= (1u << bitpos);
+            }
+            return m;
+          }();
 
-      if constexpr (V::is_128_bit) {
-        __m128i maskv = this->raw.raw;
-        __m128i srcv  = v.raw;
+          if constexpr (V::is_128_bit) {
+            __m128i maskv = this->raw.raw;
+            __m128i srcv  = v.raw;
 
-        int mov = _mm_movemask_epi8(maskv);
-        uint32_t elem_mask = _pext_u32((uint32_t)mov, elem_msb_mask);
+            int mov = _mm_movemask_epi8(maskv);
+            uint32_t elem_mask = _pext_u32((uint32_t)mov, elem_msb_mask);
 
-        alignas(16) uint8_t src_bytes[16];
-        alignas(16) uint8_t out_bytes[16];
-        _mm_storeu_si128((__m128i*)src_bytes, srcv);
+            alignas(16) uint8_t src_bytes[16];
+            alignas(16) uint8_t out_bytes[16];
+            _mm_store_si128((__m128i*)src_bytes, srcv);
 
-        size_t write = 0;
-        for (unsigned e = 0; e < (unsigned)N; ++e) {
-          if ( (elem_mask >> e) & 1u ) {
+            size_t write = 0;
+            for (unsigned e = 0; e < (unsigned)N; ++e) {
+              if ((elem_mask >> e) & 1u) {
+                const uint8_t* srcp = src_bytes + e * elem_bytes;
+                std::memcpy(out_bytes + write, srcp, elem_bytes);
+                write += elem_bytes;
+              }
+            }
+            if (write < sizeof(out_bytes)) {
+              std::memset(out_bytes + write, 0, sizeof(out_bytes) - write);
+            }
 
-            const uint8_t* srcp = src_bytes + e * elem_bytes;
-            std::memcpy(out_bytes + write, srcp, elem_bytes);
-            write += elem_bytes;
+            __m128i res = _mm_load_si128((__m128i*)out_bytes);
+            return V{res};
+
+          } else {
+            __m256i maskv256 = this->raw.raw;
+            __m256i srcv256  = v.raw;
+
+            __m128i mask_lo = _mm256_castsi256_si128(maskv256);
+            __m128i mask_hi = _mm256_extracti128_si256(maskv256, 1);
+            int mov_lo = _mm_movemask_epi8(mask_lo);
+            int mov_hi = _mm_movemask_epi8(mask_hi);
+
+            uint32_t elem_mask_lo = _pext_u32((uint32_t)mov_lo, elem_msb_mask);
+            uint32_t elem_mask_hi = _pext_u32((uint32_t)mov_hi, elem_msb_mask);
+
+            uint64_t elem_mask = uint64_t(elem_mask_lo) | (uint64_t(elem_mask_hi) << elems_per_128);
+
+            alignas(32) uint8_t src_bytes[32];
+            alignas(32) uint8_t out_bytes[32];
+            _mm256_store_si256((__m256i*)src_bytes, srcv256);
+
+            size_t write = 0;
+            for (unsigned e = 0; e < (unsigned)N; ++e) {
+              if ((elem_mask >> e) & 1u) {
+                const uint8_t* srcp = src_bytes + e * elem_bytes;
+                std::memcpy(out_bytes + write, srcp, elem_bytes);
+                write += elem_bytes;
+              }
+            }
+            if (write < sizeof(out_bytes)) {
+              std::memset(out_bytes + write, 0, sizeof(out_bytes) - write);
+            }
+
+            __m256i res = _mm256_load_si256((__m256i*)out_bytes);
+            return V{res};
           }
         }
-        if (write < sizeof(out_bytes)) std::memset(out_bytes + write, 0, sizeof(out_bytes) - write);
-
-        __m128i res = _mm_loadu_si128((__m128i*)out_bytes);
-        return V{res};
-      } else {
-        __m256i maskv256 = this->raw.raw;
-        __m256i srcv256  = v.raw;
-
-        __m128i mask_lo = _mm256_castsi256_si128(maskv256);
-        __m128i mask_hi = _mm256_extracti128_si256(maskv256, 1);
-        int mov_lo = _mm_movemask_epi8(mask_lo);
-        int mov_hi = _mm_movemask_epi8(mask_hi);
-
-        uint32_t elem_mask_lo = _pext_u32((uint32_t)mov_lo, elem_msb_mask);
-        uint32_t elem_mask_hi = _pext_u32((uint32_t)mov_hi, elem_msb_mask);
-
-        uint64_t elem_mask = uint64_t(elem_mask_lo) | (uint64_t(elem_mask_hi) << elems_per_128);
-
-        alignas(32) uint8_t src_bytes[32];
-        alignas(32) uint8_t out_bytes[32];
-        _mm256_storeu_si256((__m256i*)src_bytes, srcv256);
-
-        size_t write = 0;
-        for (unsigned e = 0; e < (unsigned)N; ++e) {
-          if ( (elem_mask >> e) & 1u ) {
-            const uint8_t* srcp = src_bytes + e * elem_bytes;
-            std::memcpy(out_bytes + write, srcp, elem_bytes);
-            write += elem_bytes;
-          }
-        }
-        if (write < sizeof(out_bytes)) std::memset(out_bytes + write, 0, sizeof(out_bytes) - write);
-
-        __m256i res = _mm256_loadu_si256((__m256i*)out_bytes);
-        return V{res};
-      }
-    }
-  #else
-    return std::bit_cast<V>(
-      std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
-  #endif
+    #else
+        return std::bit_cast<V>(
+          std::bit_cast<generic::basic_vector_mask<T, N>>(*this).compress(
+            std::bit_cast<generic::vector<typename V::element_type, N>>(v)));
+    #endif
   }
 
   template<class T, usize N, class Env>
