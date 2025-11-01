@@ -17,9 +17,9 @@ namespace lps::avx2 {
   namespace detail {
     template<class T, usize N>
     struct vector_helper {
-      using type = std::conditional_t<(sizeof(T) * N < 16 * sizeof(u8)), void,
-                                      std::conditional_t<(sizeof(T) * N <= 32 * sizeof(u8)), avx2::vector<T, N, environment>,
-                                                         doubling::vector<T, N, typename vector_helper<T, N / 2>::type, environment>>>;
+      using type = std::conditional_t<
+        (sizeof(T) * N < 16 * sizeof(u8)), void,
+        std::conditional_t<(sizeof(T) * N <= 32 * sizeof(u8)), avx2::vector<T, N, environment>, doubling::vector<T, N, environment>>>;
     };
 
     template<class T>
@@ -29,9 +29,9 @@ namespace lps::avx2 {
 
     template<class T, usize N>
     struct vector_mask_helper {
-      using type = std::conditional_t<(sizeof(T) * N < 16 * sizeof(u8)), void,
-                                      std::conditional_t<(sizeof(T) * N <= 32 * sizeof(u8)), avx2::vector_mask<T, N, environment>,
-                                                         doubling::vector_mask<T, N, typename vector_mask_helper<T, N / 2>::type, environment>>>;
+      using type = std::conditional_t<
+        (sizeof(T) * N < 16 * sizeof(u8)), void,
+        std::conditional_t<(sizeof(T) * N <= 32 * sizeof(u8)), avx2::vector_mask<T, N, environment>, doubling::vector_mask<T, N, environment>>>;
     };
 
     template<class T>

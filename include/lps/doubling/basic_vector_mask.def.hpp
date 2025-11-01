@@ -10,10 +10,11 @@
 
 namespace lps::doubling {
 
-  template<class T, usize N, class Base, class Env>
+  template<class T, usize N, class Env>
   struct basic_vector_mask {
     static constexpr usize size = N;
     using inner_type = Env::template vector<T, N>;
+    using base_type = Env::template vector_mask<T, N / 2>;
 
     constexpr basic_vector_mask() = default;
     explicit constexpr basic_vector_mask(detail::bit_mask_base_t<N> value);
@@ -46,29 +47,25 @@ namespace lps::doubling {
     static constexpr T false_value = T { 0 };
     static constexpr T true_value = static_cast<T>(~T { 0 });
 
-    std::array<Base, 2> raw;
+    std::array<base_type, 2> raw;
   };
 
-  template<class T, usize N, class Base, class Env>
-  constexpr bool operator==(const basic_vector_mask<T, N, Base, Env>& first, const basic_vector_mask<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr bool operator==(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr basic_vector_mask<T, N, Base, Env> operator~(const basic_vector_mask<T, N, Base, Env>& first);
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env> operator~(const basic_vector_mask<T, N, Env>& first);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr basic_vector_mask<T, N, Base, Env> operator&(const basic_vector_mask<T, N, Base, Env>& first,
-                                                         const basic_vector_mask<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env> operator&(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr basic_vector_mask<T, N, Base, Env>& operator&=(basic_vector_mask<T, N, Base, Env>& first,
-                                                           const basic_vector_mask<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env>& operator&=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr basic_vector_mask<T, N, Base, Env> operator|(const basic_vector_mask<T, N, Base, Env>& first,
-                                                         const basic_vector_mask<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env> operator|(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr basic_vector_mask<T, N, Base, Env>& operator|=(basic_vector_mask<T, N, Base, Env>& first,
-                                                           const basic_vector_mask<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env>& operator|=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
 
 }  // namespace lps::doubling

@@ -9,10 +9,8 @@
 
 namespace lps::doubling {
 
-  template<class T, usize N, class Base, class Env>
+  template<class T, usize N, class Env>
   struct vector {
-    static_assert(sizeof(Base) * 2 == N * sizeof(T));
-
     using element_type = T;
     static constexpr usize size = N;
 
@@ -95,61 +93,61 @@ namespace lps::doubling {
 
     [[nodiscard]] std::array<T, N> to_array() const;
 
-    std::array<Base, 2> raw;
+    std::array<half_vector, 2> raw;
   };
 
-  template<class T, usize N, class Base, class Env>
-  constexpr bool operator==(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr bool operator==(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator~(const vector<T, N, Base, Env>& first);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator~(const vector<T, N, Env>& first);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator&(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator&(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator&=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator&=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator|(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator|(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator|=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator|=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator^(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator^(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator^=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator^=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator+(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator+(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator+=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator+=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator-(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator-(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator-=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator-=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator*(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator*(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator*=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator*=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator<<(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator<<(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator<<=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator<<=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env> operator>>(const vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env> operator>>(const vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
-  template<class T, usize N, class Base, class Env>
-  constexpr vector<T, N, Base, Env>& operator>>=(vector<T, N, Base, Env>& first, const vector<T, N, Base, Env>& second);
+  template<class T, usize N, class Env>
+  constexpr vector<T, N, Env>& operator>>=(vector<T, N, Env>& first, const vector<T, N, Env>& second);
 
 }  // namespace lps::doubling

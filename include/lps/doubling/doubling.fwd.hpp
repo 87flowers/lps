@@ -5,13 +5,13 @@
 
 namespace lps::doubling {
 
-  template<class T, usize N, class Base, class Env>
+  template<class T, usize N, class Env>
   struct vector;
 
-  template<class T, usize N, class Base, class Env>
+  template<class T, usize N, class Env>
   struct basic_vector_mask;
 
-  template<class T, usize N, class Base, class Env>
-  using vector_mask = basic_vector_mask<detail::mask_element_t<T>, N, Base, Env>;
+  template<class T, usize N, class Env>
+  using vector_mask = basic_vector_mask<detail::mask_element_t<T>, N, Env>;
 
 }  // namespace lps::doubling
