@@ -38,11 +38,11 @@ namespace lps::doubling {
 
     constexpr basic_vector_mask andnot(const basic_vector_mask& second) const;
 
-    [[nodiscard]] usize popcount() const;
+    [[nodiscard]] constexpr usize popcount() const;
 
-    [[nodiscard]] std::array<T, N> to_array() const;
-    [[nodiscard]] detail::bit_mask_base_t<N> to_bits() const;
-    [[nodiscard]] inner_type to_vector() const;
+    [[nodiscard]] constexpr std::array<T, N> to_array() const;
+    [[nodiscard]] constexpr detail::bit_mask_base_t<N> to_bits() const;
+    [[nodiscard]] constexpr inner_type to_vector() const;
 
     static constexpr T false_value = T { 0 };
     static constexpr T true_value = static_cast<T>(~T { 0 });

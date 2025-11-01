@@ -11,6 +11,7 @@
 #include <array>
 #include <bit>
 #include <cstring>
+#include <type_traits>
 
 namespace lps::avx512 {
 
@@ -198,6 +199,11 @@ namespace lps::avx512 {
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::swizzle(const vmask_type& src) const {
     return mask_type { swizzle(src.raw).raw };
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::swizzle(const bmask_type& src) const {
+    return mask_type { swizzle(src.to_vector()).msb().to_bits() };
   }
 
   template<class T, usize N, class Env>
@@ -438,37 +444,37 @@ namespace lps::avx512 {
   LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::test_bm(const vector& second) const {
     if constexpr (is_128_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
-        return _mm_test_epi8_mask(raw, second.raw);
+        return bmask_type { _mm_test_epi8_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u16)) {
-        return _mm_test_epi16_mask(raw, second.raw);
+        return bmask_type { _mm_test_epi16_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u32)) {
-        return _mm_test_epi32_mask(raw, second.raw);
+        return bmask_type { _mm_test_epi32_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u64)) {
-        return _mm_test_epi64_mask(raw, second.raw);
+        return bmask_type { _mm_test_epi64_mask(raw, second.raw) };
       } else {
         static_assert(false);
       }
     } else if constexpr (is_256_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
-        return _mm256_test_epi8_mask(raw, second.raw);
+        return bmask_type { _mm256_test_epi8_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u16)) {
-        return _mm256_test_epi16_mask(raw, second.raw);
+        return bmask_type { _mm256_test_epi16_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u32)) {
-        return _mm256_test_epi32_mask(raw, second.raw);
+        return bmask_type { _mm256_test_epi32_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u64)) {
-        return _mm256_test_epi64_mask(raw, second.raw);
+        return bmask_type { _mm256_test_epi64_mask(raw, second.raw) };
       } else {
         static_assert(false);
       }
     } else {
       if constexpr (sizeof(T) == sizeof(u8)) {
-        return _mm512_test_epi8_mask(raw, second.raw);
+        return bmask_type { _mm512_test_epi8_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u16)) {
-        return _mm512_test_epi16_mask(raw, second.raw);
+        return bmask_type { _mm512_test_epi16_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u32)) {
-        return _mm512_test_epi32_mask(raw, second.raw);
+        return bmask_type { _mm512_test_epi32_mask(raw, second.raw) };
       } else if constexpr (sizeof(T) == sizeof(u64)) {
-        return _mm512_test_epi64_mask(raw, second.raw);
+        return bmask_type { _mm512_test_epi64_mask(raw, second.raw) };
       } else {
         static_assert(false);
       }
@@ -476,8 +482,8 @@ namespace lps::avx512 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::test(const vector& second) const {
-    return test_vm(second);
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::test(const vector& second) const {
+    return test_bm(second);
   }
 
   template<class T, usize N, class Env>
@@ -486,8 +492,49 @@ namespace lps::avx512 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::eq(const vector& second) const {
-    return eq_vm(second);
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::eq_bm(const vector& second) const {
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm_cmpeq_epu8_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm_cmpeq_epu16_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm_cmpeq_epu32_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm_cmpeq_epu64_mask(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm256_cmpeq_epu8_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm256_cmpeq_epu16_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm256_cmpeq_epu32_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm256_cmpeq_epu64_mask(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm512_cmpeq_epu8_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm512_cmpeq_epu16_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm512_cmpeq_epu32_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm512_cmpeq_epu64_mask(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::eq(const vector& second) const {
+    return eq_bm(second);
   }
 
   template<class T, usize N, class Env>
@@ -496,8 +543,49 @@ namespace lps::avx512 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::neq(const vector& second) const {
-    return neq_vm(second);
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::neq_bm(const vector& second) const {
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm_cmpneq_epu8_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm_cmpneq_epu16_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm_cmpneq_epu32_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm_cmpneq_epu64_mask(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm256_cmpneq_epu8_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm256_cmpneq_epu16_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm256_cmpneq_epu32_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm256_cmpneq_epu64_mask(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm512_cmpneq_epu8_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm512_cmpneq_epu16_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm512_cmpneq_epu32_mask(raw, second.raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm512_cmpneq_epu64_mask(raw, second.raw) };
+      } else {
+        static_assert(false);
+      }
+    }
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::neq(const vector& second) const {
+    return neq_bm(second);
   }
 
   template<class T, usize N, class Env>
@@ -506,48 +594,180 @@ namespace lps::avx512 {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::gt(const vector& other) const {
-    return gt_vm(other);
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::gt_bm(const vector& second) const {
+    if constexpr (std::is_signed_v<T>) {
+      if constexpr (is_128_bit) {
+        if constexpr (sizeof(T) == sizeof(u8)) {
+          return bmask_type { _mm_cmpgt_epi8_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u16)) {
+          return bmask_type { _mm_cmpgt_epi16_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u32)) {
+          return bmask_type { _mm_cmpgt_epi32_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u64)) {
+          return bmask_type { _mm_cmpgt_epi64_mask(raw, second.raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (is_128_bit) {
+        if constexpr (sizeof(T) == sizeof(u8)) {
+          return bmask_type { _mm256_cmpgt_epi8_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u16)) {
+          return bmask_type { _mm256_cmpgt_epi16_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u32)) {
+          return bmask_type { _mm256_cmpgt_epi32_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u64)) {
+          return bmask_type { _mm256_cmpgt_epi64_mask(raw, second.raw) };
+        } else {
+          static_assert(false);
+        }
+      } else {
+        if constexpr (sizeof(T) == sizeof(u8)) {
+          return bmask_type { _mm512_cmpgt_epi8_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u16)) {
+          return bmask_type { _mm512_cmpgt_epi16_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u32)) {
+          return bmask_type { _mm512_cmpgt_epi32_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u64)) {
+          return bmask_type { _mm512_cmpgt_epi64_mask(raw, second.raw) };
+        } else {
+          static_assert(false);
+        }
+      }
+    } else {
+      if constexpr (is_128_bit) {
+        if constexpr (sizeof(T) == sizeof(u8)) {
+          return bmask_type { _mm_cmpgt_epu8_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u16)) {
+          return bmask_type { _mm_cmpgt_epu16_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u32)) {
+          return bmask_type { _mm_cmpgt_epu32_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u64)) {
+          return bmask_type { _mm_cmpgt_epu64_mask(raw, second.raw) };
+        } else {
+          static_assert(false);
+        }
+      } else if constexpr (is_128_bit) {
+        if constexpr (sizeof(T) == sizeof(u8)) {
+          return bmask_type { _mm256_cmpgt_epu8_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u16)) {
+          return bmask_type { _mm256_cmpgt_epu16_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u32)) {
+          return bmask_type { _mm256_cmpgt_epu32_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u64)) {
+          return bmask_type { _mm256_cmpgt_epu64_mask(raw, second.raw) };
+        } else {
+          static_assert(false);
+        }
+      } else {
+        if constexpr (sizeof(T) == sizeof(u8)) {
+          return bmask_type { _mm512_cmpgt_epu8_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u16)) {
+          return bmask_type { _mm512_cmpgt_epu16_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u32)) {
+          return bmask_type { _mm512_cmpgt_epu32_mask(raw, second.raw) };
+        } else if constexpr (sizeof(T) == sizeof(u64)) {
+          return bmask_type { _mm512_cmpgt_epu64_mask(raw, second.raw) };
+        } else {
+          static_assert(false);
+        }
+      }
+    }
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt(const vector& other) const {
+    return gt_bm(other);
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::nonzeros_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).nonzeros_vm());
+    return std::bit_cast<vmask_type>(std::bit_cast<generic::vector<T, N>>(*this).nonzeros_vm());
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::nonzeros() const {
-    return nonzeros_vm();
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::nonzeros_bm() const {
+    return neq_bm(zero());
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::nonzeros() const {
+    return nonzeros_bm();
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr usize vector<T, N, Env>::nonzeros_count() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).nonzeros_count();
+    return nonzeros().popcount();
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::zeros_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).zeros_vm());
+    return std::bit_cast<vmask_type>(std::bit_cast<generic::vector<T, N>>(*this).zeros_vm());
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::zeros() const {
-    return zeros_vm();
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::zeros_bm() const {
+    return eq_bm(zero());
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::zeros() const {
+    return zeros_bm();
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr usize vector<T, N, Env>::zeros_count() const {
-    return std::bit_cast<generic::vector<T, N>>(*this).zeros_count();
+    return zeros().popcount();
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::msb_vm() const {
-    return std::bit_cast<mask_type>(std::bit_cast<generic::vector<T, N>>(*this).msb_vm());
+    return std::bit_cast<vmask_type>(std::bit_cast<generic::vector<T, N>>(*this).msb_vm());
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::vmask_type vector<T, N, Env>::msb() const {
-    return msb_vm();
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::msb_bm() const {
+    if constexpr (is_128_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm_movepi8_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm_movepi16_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm_movepi32_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm_movepi64_mask(raw) };
+      } else {
+        static_assert(false);
+      }
+    } else if constexpr (is_256_bit) {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm256_movepi8_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm256_movepi16_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm256_movepi32_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm256_movepi64_mask(raw) };
+      } else {
+        static_assert(false);
+      }
+    } else {
+      if constexpr (sizeof(T) == sizeof(u8)) {
+        return bmask_type { _mm512_movepi8_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u16)) {
+        return bmask_type { _mm512_movepi16_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u32)) {
+        return bmask_type { _mm512_movepi32_mask(raw) };
+      } else if constexpr (sizeof(T) == sizeof(u64)) {
+        return bmask_type { _mm512_movepi64_mask(raw) };
+      } else {
+        static_assert(false);
+      }
+    }
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::msb() const {
+    return msb_bm();
   }
 
   template<class T, usize N, class Env>

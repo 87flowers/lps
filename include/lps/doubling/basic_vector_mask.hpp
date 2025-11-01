@@ -74,17 +74,17 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] usize basic_vector_mask<T, N, Env>::popcount() const {
+  [[nodiscard]] LPS_INLINE constexpr usize basic_vector_mask<T, N, Env>::popcount() const {
     return raw[0].popcount() + raw[1].popcount();
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] std::array<T, N> basic_vector_mask<T, N, Env>::to_array() const {
+  [[nodiscard]] LPS_INLINE constexpr std::array<T, N> basic_vector_mask<T, N, Env>::to_array() const {
     return std::bit_cast<std::array<T, N>>(*this);
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] detail::bit_mask_base_t<N> basic_vector_mask<T, N, Env>::to_bits() const {
+  [[nodiscard]] LPS_INLINE constexpr detail::bit_mask_base_t<N> basic_vector_mask<T, N, Env>::to_bits() const {
     detail::bit_mask_base_t<N> result = 0;
     result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].to_bits());
     result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].to_bits()) << (N / 2);
@@ -92,7 +92,7 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
-  [[nodiscard]] basic_vector_mask<T, N, Env>::inner_type basic_vector_mask<T, N, Env>::to_vector() const {
+  [[nodiscard]] LPS_INLINE constexpr basic_vector_mask<T, N, Env>::inner_type basic_vector_mask<T, N, Env>::to_vector() const {
     return std::bit_cast<basic_vector_mask<T, N, Env>::inner_type>(*this);
   }
 

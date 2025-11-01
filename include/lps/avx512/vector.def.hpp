@@ -21,9 +21,9 @@ namespace lps::avx512 {
     using element_type = T;
     static constexpr usize size = N;
 
-    using bmask_type = typename detail::bit_mask_base_t<N>;
+    using bmask_type = typename Env::template bit_mask<T, N>;
     using vmask_type = typename Env::template vector_mask<T, N>;
-    using mask_type = typename Env::template vector_mask<T, N>;
+    using mask_type = typename Env::template mask<T, N>;
 
     constexpr vector() = default;
     constexpr vector(raw_type src);
@@ -47,6 +47,7 @@ namespace lps::avx512 {
     constexpr vector swizzle(const vector& src0, const vector& src1) const;
 
     constexpr vmask_type swizzle(const vmask_type& src) const;
+    constexpr bmask_type swizzle(const bmask_type& src) const;
 
     constexpr vector swizzle(const Env::template vector<T, 16 / sizeof(T)>& src) const
       requires(16 / sizeof(T) != N);
@@ -73,23 +74,29 @@ namespace lps::avx512 {
     constexpr mask_type test(const vector& second) const;
 
     constexpr vmask_type eq_vm(const vector& second) const;
+    constexpr bmask_type eq_bm(const vector& second) const;
     constexpr mask_type eq(const vector& second) const;
 
     constexpr vmask_type neq_vm(const vector& second) const;
+    constexpr bmask_type neq_bm(const vector& second) const;
     constexpr mask_type neq(const vector& second) const;
 
     constexpr vmask_type gt_vm(const vector& second) const;
+    constexpr bmask_type gt_bm(const vector& second) const;
     constexpr mask_type gt(const vector& second) const;
 
     constexpr vmask_type nonzeros_vm() const;
+    constexpr bmask_type nonzeros_bm() const;
     constexpr mask_type nonzeros() const;
     constexpr usize nonzeros_count() const;
 
     constexpr vmask_type zeros_vm() const;
+    constexpr bmask_type zeros_bm() const;
     constexpr mask_type zeros() const;
     constexpr usize zeros_count() const;
 
     constexpr vmask_type msb_vm() const;
+    constexpr bmask_type msb_bm() const;
     constexpr mask_type msb() const;
 
     [[nodiscard]] constexpr std::array<T, N> to_array() const;

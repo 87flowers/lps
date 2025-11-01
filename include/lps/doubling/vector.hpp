@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lps/detail/msb.hpp"
+#include "lps/doubling/basic_bit_mask.def.hpp"
 #include "lps/doubling/basic_vector_mask.def.hpp"
 #include "lps/doubling/vector.def.hpp"
 #include "lps/generic/basic_vector_mask.hpp"
@@ -198,15 +199,19 @@ namespace lps::doubling {
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::test_bm(const vector& second) const {
-    bmask_type result = 0;
-    result |= static_cast<bmask_type>(raw[0].test_bm(second.raw[0]));
-    result |= static_cast<bmask_type>(raw[1].test_bm(second.raw[1])) << (N / 2);
-    return result;
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].test_bm(second.raw[0]).to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].test_bm(second.raw[1]).to_bits()) << (N / 2);
+    return bmask_type { result };
   }
 
   template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::test(const vector& second) const {
-    return test_vm(second);
+    if constexpr (Env::prefer_bm) {
+      return test_bm(second);
+    } else {
+      return test_vm(second);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -218,8 +223,20 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::eq_bm(const vector& second) const {
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].eq_bm(second.raw[0]).to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].eq_bm(second.raw[1]).to_bits()) << (N / 2);
+    return bmask_type { result };
+  }
+
+  template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::eq(const vector& second) const {
-    return eq_vm(second);
+    if constexpr (Env::prefer_bm) {
+      return eq_bm(second);
+    } else {
+      return eq_vm(second);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -231,8 +248,20 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::neq_bm(const vector& second) const {
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].neq_bm(second.raw[0]).to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].neq_bm(second.raw[1]).to_bits()) << (N / 2);
+    return bmask_type { result };
+  }
+
+  template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::neq(const vector& second) const {
-    return neq_vm(second);
+    if constexpr (Env::prefer_bm) {
+      return neq_bm(second);
+    } else {
+      return neq_vm(second);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -244,8 +273,20 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
-  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt(const vector& other) const {
-    return gt_vm(other);
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::gt_bm(const vector& second) const {
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].gt_bm(second.raw[0]).to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].gt_bm(second.raw[1]).to_bits()) << (N / 2);
+    return bmask_type { result };
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::gt(const vector& second) const {
+    if constexpr (Env::prefer_bm) {
+      return gt_bm(second);
+    } else {
+      return gt_vm(second);
+    }
   }
 
   template<class T, usize N, class Env>
@@ -257,8 +298,20 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::nonzeros_bm() const {
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].nonzeros_bm().to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].nonzeros_bm().to_bits()) << (N / 2);
+    return bmask_type { result };
+  }
+
+  template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::nonzeros() const {
-    return nonzeros_vm();
+    if constexpr (Env::prefer_bm) {
+      return nonzeros_bm();
+    } else {
+      return nonzeros_vm();
+    }
   }
 
   template<class T, usize N, class Env>
@@ -278,8 +331,20 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::zeros_bm() const {
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].zeros_bm().to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].zeros_bm().to_bits()) << (N / 2);
+    return bmask_type { result };
+  }
+
+  template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::zeros() const {
-    return zeros_vm();
+    if constexpr (Env::prefer_bm) {
+      return zeros_bm();
+    } else {
+      return zeros_vm();
+    }
   }
 
   template<class T, usize N, class Env>
@@ -299,8 +364,20 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
+  LPS_INLINE constexpr vector<T, N, Env>::bmask_type vector<T, N, Env>::msb_bm() const {
+    detail::bit_mask_base_t<N> result = 0;
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[0].msb_bm().to_bits());
+    result |= static_cast<detail::bit_mask_base_t<N>>(raw[1].msb_bm().to_bits()) << (N / 2);
+    return bmask_type { result };
+  }
+
+  template<class T, usize N, class Env>
   LPS_INLINE constexpr vector<T, N, Env>::mask_type vector<T, N, Env>::msb() const {
-    return msb_vm();
+    if constexpr (Env::prefer_bm) {
+      return msb_bm();
+    } else {
+      return msb_vm();
+    }
   }
 
   template<class T, usize N, class Env>
