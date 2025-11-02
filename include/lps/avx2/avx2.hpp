@@ -41,11 +41,16 @@ namespace lps::avx2 {
   }  // namespace detail
 
   struct environment {
+    static constexpr bool prefer_bm = false;
+
     template<class T, usize N>
     using vector = typename detail::vector_helper<T, N>::type;
 
     template<class T, usize N>
     using vector_mask = typename detail::vector_mask_helper<T, N>::type;
+
+    template<class T, usize N>
+    using bit_mask = void;
 
     template<class T, usize N>
     using mask = typename detail::vector_mask_helper<T, N>::type;
