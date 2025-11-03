@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lps/detail/always_false.hpp"
 #include "lps/generic/basic_vector_mask.def.hpp"
 #include "lps/generic/vector.def.hpp"
 #include "lps/sse4_2/basic_vector_mask.def.hpp"
@@ -84,7 +85,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_pd((__m128d)raw.raw))));
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -104,7 +105,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return static_cast<u8>(_mm_movemask_pd((__m128d)raw.raw));
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 

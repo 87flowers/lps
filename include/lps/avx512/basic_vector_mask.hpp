@@ -2,6 +2,7 @@
 
 #include "lps/avx512/basic_vector_mask.def.hpp"
 #include "lps/avx512/vector.def.hpp"
+#include "lps/detail/always_false.hpp"
 #include "lps/generic/basic_vector_mask.def.hpp"
 #include "lps/generic/vector.def.hpp"
 #include "lps/stdint.hpp"
@@ -80,7 +81,7 @@ namespace lps::avx512 {
       } else if constexpr (sizeof(T) == sizeof(u64)) {
         return V { _mm_maskz_compress_epi64(_mm_movepi64_mask(raw.raw), v.raw) };
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else if constexpr (V::is_256_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
@@ -92,7 +93,7 @@ namespace lps::avx512 {
       } else if constexpr (sizeof(T) == sizeof(u64)) {
         return V { _mm256_maskz_compress_epi64(_mm256_movepi64_mask(raw.raw), v.raw) };
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else {
       if constexpr (sizeof(T) == sizeof(u8)) {
@@ -104,7 +105,7 @@ namespace lps::avx512 {
       } else if constexpr (sizeof(T) == sizeof(u64)) {
         return V { _mm512_maskz_compress_epi64(_mm512_movepi64_mask(raw.raw), v.raw) };
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     }
   }

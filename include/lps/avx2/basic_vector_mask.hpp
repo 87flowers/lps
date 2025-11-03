@@ -2,14 +2,15 @@
 
 #include "lps/avx2/basic_vector_mask.def.hpp"
 #include "lps/avx2/vector.def.hpp"
+#include "lps/detail/always_false.hpp"
 #include "lps/generic/basic_vector_mask.def.hpp"
 #include "lps/generic/vector.def.hpp"
 #include "lps/stdint.hpp"
 
 #include <array>
-#include <immintrin.h>
 #include <bit>
 #include <cstring>
+#include <immintrin.h>
 
 namespace lps::avx2 {
 
@@ -87,10 +88,10 @@ namespace lps::avx2 {
 
     // Zero tail
     for (size_t i = write_idx; i < N; ++i) {
-      result[i] = elem_t{};
+      result[i] = elem_t {};
     }
 
-    return V{result};
+    return V { result };
   }
 
   template<class T, usize N, class Env>
@@ -114,7 +115,7 @@ namespace lps::avx2 {
       } else if constexpr (sizeof(T) == sizeof(u64)) {
         return static_cast<usize>(std::popcount(static_cast<u8>(_mm_movemask_pd((__m128d)raw.raw))));
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else {
       if constexpr (sizeof(T) == sizeof(u8)) {
@@ -126,7 +127,7 @@ namespace lps::avx2 {
       } else if constexpr (sizeof(T) == sizeof(u64)) {
         return static_cast<usize>(std::popcount(static_cast<u8>(_mm256_movemask_pd((__m256d)raw.raw))));
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     }
   }
@@ -148,7 +149,7 @@ namespace lps::avx2 {
       } else if constexpr (sizeof(T) == sizeof(u64)) {
         return static_cast<u8>(_mm_movemask_pd((__m128d)raw.raw));
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else {
       if constexpr (sizeof(T) == sizeof(u8)) {
@@ -160,7 +161,7 @@ namespace lps::avx2 {
       } else if constexpr (sizeof(T) == sizeof(u64)) {
         return static_cast<u8>(_mm256_movemask_pd((__m256d)raw.raw));
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     }
   }

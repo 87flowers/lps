@@ -1,5 +1,6 @@
 #pragma once
 
+#include "lps/detail/always_false.hpp"
 #include "lps/detail/msb.hpp"
 #include "lps/generic/basic_vector_mask.def.hpp"
 #include "lps/generic/vector.def.hpp"
@@ -44,7 +45,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       result.raw = _mm_set1_epi64x(std::bit_cast<i64>(value));
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
     return result;
   }
@@ -83,7 +84,7 @@ namespace lps::sse4_2 {
       } else if constexpr (sizeof(U) == sizeof(u64)) {
         return Result { _mm_cvtepu8_epi64(raw) };
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else if constexpr (sizeof(T) == sizeof(u16)) {
       if constexpr (sizeof(U) == sizeof(u8)) {
@@ -100,7 +101,7 @@ namespace lps::sse4_2 {
       } else if constexpr (sizeof(U) == sizeof(u64)) {
         return Result { _mm_cvtepu16_epi64(raw) };
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else if constexpr (sizeof(T) == sizeof(u32)) {
       if constexpr (sizeof(U) == sizeof(u8)) {
@@ -116,7 +117,7 @@ namespace lps::sse4_2 {
       } else if constexpr (sizeof(U) == sizeof(u64)) {
         return Result { _mm_cvtepu32_epi64(raw) };
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       if constexpr (sizeof(U) == sizeof(u8)) {
@@ -131,10 +132,10 @@ namespace lps::sse4_2 {
       } else if constexpr (sizeof(U) == sizeof(u64)) {
         return *this;
       } else {
-        static_assert(false);
+        static_assert(detail::always_false<T>);
       }
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -189,7 +190,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return vector { _mm_slli_epi64(raw, shift_amount) };
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -206,7 +207,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return vector { _mm_srli_epi64(raw, shift_amount) };
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -253,7 +254,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return vector { _mm_unpacklo_epi64(raw, second.raw) };
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -268,7 +269,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return vector { _mm_unpackhi_epi64(raw, second.raw) };
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -298,7 +299,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return mask_type { _mm_cmpeq_epi64(raw, second.raw) };
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -336,7 +337,7 @@ namespace lps::sse4_2 {
     } else if constexpr (std::is_same_v<T, u64>) {
       static_assert(false, "unimplemented");
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -443,7 +444,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return vector<T, N, Env> { _mm_add_epi64(first.raw, second.raw) };
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
@@ -463,7 +464,7 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       return vector<T, N, Env> { _mm_sub_epi64(first.raw, second.raw) };
     } else {
-      static_assert(false);
+      static_assert(detail::always_false<T>);
     }
   }
 
