@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lps/detail/bit_mask_base.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/sse4_2/sse4_2.fwd.hpp"
 #include "lps/stdint.hpp"
 
@@ -33,7 +34,7 @@ namespace lps::sse4_2 {
     constexpr T read(usize i) const;
 
     template<class U>
-    constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> convert() const;
+    constexpr detail::vector_clamped_size<Env, U, N> convert() const;
 
     template<class V, usize extract_index>
     constexpr V extract_aligned() const;

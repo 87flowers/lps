@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lps/detail/bit_mask_base.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/generic/generic.fwd.hpp"
 #include "lps/stdint.hpp"
 
@@ -34,7 +35,7 @@ namespace lps::generic {
     constexpr T read(usize i) const;
 
     template<class U>
-    constexpr vector<U, std::max(N, 16 / sizeof(U))> convert() const;
+    constexpr vector<U, detail::clamped_size<U, N>> convert() const;
 
     template<class V, usize extract_index>
     constexpr V extract_aligned() const;

@@ -7,6 +7,7 @@
 #include "lps/stdint.hpp"
 
 #include <array>
+#include <bit>
 
 namespace lps::doubling {
 

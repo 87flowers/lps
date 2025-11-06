@@ -2,6 +2,7 @@
 
 #include "lps/avx512/avx512.fwd.hpp"
 #include "lps/detail/bit_mask_base.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/stdint.hpp"
 
 #include <array>
@@ -36,7 +37,7 @@ namespace lps::avx512 {
     constexpr T read(usize i) const;
 
     template<class U>
-    constexpr typename Env::template vector<U, std::max(N, 16 / sizeof(U))> convert() const;
+    constexpr detail::vector_clamped_size<Env, U, N> convert() const;
 
     template<class V, usize extract_index>
     constexpr V extract_aligned() const;

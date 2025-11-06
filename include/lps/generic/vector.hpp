@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lps/detail/msb.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/generic/basic_vector_mask.def.hpp"
 #include "lps/generic/vector.def.hpp"
 #include "lps/stdint.hpp"
@@ -45,8 +46,8 @@ namespace lps::generic {
 
   template<class T, usize N>
   template<class U>
-  constexpr vector<U, std::max(N, 16 / sizeof(U))> vector<T, N>::convert() const {
-    vector<U, std::max(N, 16 / sizeof(U))> result;
+  constexpr vector<U, detail::clamped_size<U, N>> vector<T, N>::convert() const {
+    vector<U, detail::clamped_size<U, N>> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = static_cast<U>(raw[i]);
     }

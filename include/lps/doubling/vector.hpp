@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lps/detail/msb.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/doubling/basic_bit_mask.def.hpp"
 #include "lps/doubling/basic_vector_mask.def.hpp"
 #include "lps/doubling/vector.def.hpp"
@@ -57,13 +58,13 @@ namespace lps::doubling {
 
   template<class T, usize N, class Env>
   template<class U>
-  LPS_INLINE constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() const {
+  LPS_INLINE constexpr detail::vector_clamped_size<Env, U, N> vector<T, N, Env>::convert() const {
     // TODO
-    generic::vector<U, std::max(N, 16 / sizeof(U))> result;
+    generic::vector<U, detail::clamped_size<U, N>> result;
     for (usize i = 0; i < N; i++) {
       result.raw[i] = static_cast<U>(read(i));
     }
-    return std::bit_cast<Env::template vector<U, std::max(N, 16 / sizeof(U))>>(result);
+    return std::bit_cast<detail::vector_clamped_size<Env, U, N>>(result);
   }
 
   template<class T, usize N, class Env>

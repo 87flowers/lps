@@ -2,6 +2,7 @@
 
 #include "lps/detail/always_false.hpp"
 #include "lps/detail/msb.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/generic/basic_vector_mask.def.hpp"
 #include "lps/generic/vector.def.hpp"
 #include "lps/sse4_2/basic_vector_mask.def.hpp"
@@ -66,8 +67,8 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   template<class U>
-  constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() const {
-    using Result = Env::template vector<U, std::max(N, 16 / sizeof(U))>;
+  constexpr detail::vector_clamped_size<Env, U, N> vector<T, N, Env>::convert() const {
+    using Result = detail::vector_clamped_size<Env, U, N>;
     if constexpr (sizeof(T) == sizeof(u8)) {
       if constexpr (sizeof(U) == sizeof(u8)) {
         return *this;
@@ -122,13 +123,13 @@ namespace lps::sse4_2 {
     } else if constexpr (sizeof(T) == sizeof(u64)) {
       if constexpr (sizeof(U) == sizeof(u8)) {
         // TODO: Implement
-        static_assert(false, "unimplemented");
+        static_assert(detail::always_false<T>, "unimplemented");
       } else if constexpr (sizeof(U) == sizeof(u16)) {
         // TODO: Implement
-        static_assert(false, "unimplemented");
+        static_assert(detail::always_false<T>, "unimplemented");
       } else if constexpr (sizeof(U) == sizeof(u32)) {
         // TODO: Implement
-        static_assert(false, "unimplemented");
+        static_assert(detail::always_false<T>, "unimplemented");
       } else if constexpr (sizeof(U) == sizeof(u64)) {
         return *this;
       } else {
@@ -335,7 +336,7 @@ namespace lps::sse4_2 {
     } else if constexpr (std::is_same_v<T, u32>) {
       return ~mask_type { _mm_cmpeq_epi32(_mm_min_epu32(raw, second.raw), raw) };
     } else if constexpr (std::is_same_v<T, u64>) {
-      static_assert(false, "unimplemented");
+      static_assert(detail::always_false<T>, "unimplemented");
     } else {
       static_assert(detail::always_false<T>);
     }

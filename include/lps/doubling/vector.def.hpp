@@ -1,6 +1,7 @@
 #pragma once
 
 #include "lps/detail/bit_mask_base.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/doubling/doubling.fwd.hpp"
 #include "lps/stdint.hpp"
 
@@ -33,7 +34,7 @@ namespace lps::doubling {
     constexpr T read(usize i) const;
 
     template<class U>
-    constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> convert() const;
+    constexpr detail::vector_clamped_size<Env, U, N> convert() const;
 
     template<class V, usize extract_index>
     constexpr V extract_aligned() const;

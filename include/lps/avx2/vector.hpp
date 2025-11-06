@@ -4,6 +4,7 @@
 #include "lps/avx2/vector.def.hpp"
 #include "lps/detail/always_false.hpp"
 #include "lps/detail/msb.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/generic/basic_vector_mask.def.hpp"
 #include "lps/generic/vector.def.hpp"
 #include "lps/stdint.hpp"
@@ -88,8 +89,8 @@ namespace lps::avx2 {
 
   template<class T, usize N, class Env>
   template<class U>
-  LPS_INLINE constexpr Env::template vector<U, std::max(N, 16 / sizeof(U))> vector<T, N, Env>::convert() const {
-    using Result = Env::template vector<U, std::max(N, 16 / sizeof(U))>;
+  LPS_INLINE constexpr detail::vector_clamped_size<Env, U, N> vector<T, N, Env>::convert() const {
+    using Result = detail::vector_clamped_size<Env, U, N>;
     if constexpr (is_128_bit) {
       if constexpr (sizeof(T) == sizeof(u8)) {
         if constexpr (sizeof(U) == sizeof(u8)) {
@@ -217,7 +218,7 @@ namespace lps::avx2 {
     for (usize i = 0; i < N; i++) {
       result[i] = static_cast<U>(read(i));
     }
-    return typename Env::template vector<U, std::max(N, 16 / sizeof(U))> { result };
+    return Result { result };
   }
 
   template<class T, usize N, class Env>
@@ -518,7 +519,7 @@ namespace lps::avx2 {
       } else if constexpr (std::is_same_v<T, u32>) {
         return ~mask_type { _mm_cmpeq_epi32(_mm_min_epu32(raw, second.raw), raw) };
       } else if constexpr (std::is_same_v<T, u64>) {
-        static_assert(false, "unimplemented");
+        static_assert(detail::always_false<T>, "unimplemented");
       } else {
         static_assert(detail::always_false<T>);
       }
@@ -538,7 +539,7 @@ namespace lps::avx2 {
       } else if constexpr (std::is_same_v<T, u32>) {
         return ~mask_type { _mm256_cmpeq_epi32(_mm256_min_epu32(raw, second.raw), raw) };
       } else if constexpr (std::is_same_v<T, u64>) {
-        static_assert(false, "unimplemented");
+        static_assert(detail::always_false<T>, "unimplemented");
       } else {
         static_assert(detail::always_false<T>);
       }
