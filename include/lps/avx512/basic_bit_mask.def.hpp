@@ -3,6 +3,7 @@
 #include "lps/avx512/avx512.fwd.hpp"
 #include "lps/detail/bit_mask_base.hpp"
 #include "lps/detail/mask_element.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/stdint.hpp"
 
 #include <array>
@@ -70,6 +71,9 @@ namespace lps::avx512 {
 
     constexpr void set(usize index, bool value);
 
+    template<class U>
+    constexpr typename Env::template bit_mask<U, detail::clamped_size<U, N>> convert() const;
+
     template<class V>
       requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
     constexpr V mask(const V& v1) const;
@@ -114,5 +118,11 @@ namespace lps::avx512 {
 
   template<class T, usize N, class Env>
   constexpr basic_bit_mask<T, N, Env>& operator|=(basic_bit_mask<T, N, Env>& first, const basic_bit_mask<T, N, Env>& second);
+
+  template<class T, usize N, class Env>
+  constexpr basic_bit_mask<T, N, Env> operator^(const basic_bit_mask<T, N, Env>& first, const basic_bit_mask<T, N, Env>& second);
+
+  template<class T, usize N, class Env>
+  constexpr basic_bit_mask<T, N, Env>& operator^=(basic_bit_mask<T, N, Env>& first, const basic_bit_mask<T, N, Env>& second);
 
 }  // namespace lps::avx512

@@ -2,6 +2,7 @@
 
 #include "lps/detail/bit_mask_base.hpp"
 #include "lps/detail/mask_element.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/sse4_2/sse4_2.fwd.hpp"
 #include "lps/stdint.hpp"
 
@@ -24,6 +25,9 @@ namespace lps::sse4_2 {
     static constexpr basic_vector_mask splat(bool value);
 
     constexpr void set(usize index, bool value);
+
+    template<class U>
+    constexpr typename Env::template vector_mask<U, detail::clamped_size<U, N>> convert() const;
 
     template<class V>
       requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
@@ -68,5 +72,11 @@ namespace lps::sse4_2 {
 
   template<class T, usize N, class Env>
   constexpr basic_vector_mask<T, N, Env>& operator|=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
+
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env> operator^(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
+
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env>& operator^=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second);
 
 }  // namespace lps::sse4_2

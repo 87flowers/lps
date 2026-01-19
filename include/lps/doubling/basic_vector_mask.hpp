@@ -39,6 +39,12 @@ namespace lps::doubling {
   }
 
   template<class T, usize N, class Env>
+  template<class U>
+  constexpr typename Env::template vector_mask<U, detail::clamped_size<U, N>> basic_vector_mask<T, N, Env>::convert() const {
+    return std::bit_cast<typename Env::template vector_mask<U, detail::clamped_size<U, N>>>(to_vector().template convert<U>());
+  }
+
+  template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
   LPS_INLINE constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) const {
@@ -134,6 +140,19 @@ namespace lps::doubling {
   template<class T, usize N, class Env>
   LPS_INLINE constexpr basic_vector_mask<T, N, Env>& operator|=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
     return first = first | second;
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env> operator^(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+    basic_vector_mask<T, N, Env> result;
+    result.raw[0] = first.raw[0] ^ second.raw[0];
+    result.raw[1] = first.raw[1] ^ second.raw[1];
+    return result;
+  }
+
+  template<class T, usize N, class Env>
+  LPS_INLINE constexpr basic_vector_mask<T, N, Env>& operator^=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+    return first = first ^ second;
   }
 
 }  // namespace lps::doubling

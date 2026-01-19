@@ -2,6 +2,7 @@
 
 #include "lps/detail/bit_mask_base.hpp"
 #include "lps/detail/mask_element.hpp"
+#include "lps/detail/vector_clamped_size.hpp"
 #include "lps/generic/generic.fwd.hpp"
 #include "lps/stdint.hpp"
 
@@ -29,6 +30,12 @@ namespace lps::generic {
   constexpr basic_vector_mask<T, N>& operator|=(basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
 
   template<class T, usize N>
+  constexpr basic_vector_mask<T, N> operator^(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+  template<class T, usize N>
+  constexpr basic_vector_mask<T, N>& operator^=(basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+  template<class T, usize N>
   struct basic_vector_mask {
     static constexpr usize size = N;
     using inner_type = vector<T, N>;
@@ -40,6 +47,9 @@ namespace lps::generic {
     static constexpr basic_vector_mask splat(bool value);
 
     constexpr void set(usize index, bool value);
+
+    template<class U>
+    constexpr basic_vector_mask<detail::mask_element_t<U>, detail::clamped_size<U, N>> convert() const;
 
     template<class U>
       requires std::is_same_v<T, detail::mask_element_t<U>>
@@ -73,11 +83,15 @@ namespace lps::generic {
 
     friend constexpr basic_vector_mask<T, N>& operator|= <T, N>(basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
 
+    friend constexpr basic_vector_mask<T, N> operator^ <T, N>(const basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
+    friend constexpr basic_vector_mask<T, N>& operator^= <T, N>(basic_vector_mask<T, N>& first, const basic_vector_mask<T, N>& second);
+
     template<class U, usize M>
     friend struct vector;
   private:
     static constexpr T false_value = T { 0 };
-    static constexpr T true_value = static_cast<T>(~T { 0 });
+    static constexpr T true_value = T { -1 };
 
     inner_type raw;
   };

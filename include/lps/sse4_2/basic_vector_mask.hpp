@@ -48,6 +48,12 @@ namespace lps::sse4_2 {
   }
 
   template<class T, usize N, class Env>
+  template<class U>
+  constexpr typename Env::template vector_mask<U, detail::clamped_size<U, N>> basic_vector_mask<T, N, Env>::convert() const {
+    return std::bit_cast<typename Env::template vector_mask<U, detail::clamped_size<U, N>>>(raw.template convert<U>());
+  }
+
+  template<class T, usize N, class Env>
   template<class V>
     requires std::is_same_v<V, typename Env::template vector<typename V::element_type, N>>
   constexpr V basic_vector_mask<T, N, Env>::mask(const V& v1) const {
@@ -148,6 +154,18 @@ namespace lps::sse4_2 {
   template<class T, usize N, class Env>
   constexpr basic_vector_mask<T, N, Env>& operator|=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
     return first = first | second;
+  }
+
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env> operator^(const basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+    basic_vector_mask<T, N, Env> result;
+    result.raw = first.raw ^ second.raw;
+    return result;
+  }
+
+  template<class T, usize N, class Env>
+  constexpr basic_vector_mask<T, N, Env>& operator^=(basic_vector_mask<T, N, Env>& first, const basic_vector_mask<T, N, Env>& second) {
+    return first = first ^ second;
   }
 
 }  // namespace lps::sse4_2
